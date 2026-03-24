@@ -28,10 +28,10 @@ export const FLOORS: FloorInfo[] = [
   },
   {
     number: 3,
-    name: "Frontier Fitness",
-    shortName: "Fitness",
+    name: "Private Offices",
+    shortName: "Private Offices",
     description:
-      "The tower's dedicated space for exercise and recovery: practical aspects of living well.",
+      "Private office suites for teams and companies in the tower.",
   },
   {
     number: 4,

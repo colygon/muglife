@@ -78,7 +78,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
       <div className="max-w-lg mx-auto px-4 py-4 pb-24">
         {activeTab === "feed" && <ActivityFeed activities={activities} />}
         {activeTab === "tower" && <TowerView mugs={floorMugs} />}
-        {activeTab === "mugs" && <MugDirectory mugs={allMugs} />}
+        {activeTab === "mugs" && <MugDirectory mugs={allMugs} onMugCreated={refresh} />}
       </div>
 
       {/* Bottom Dock */}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mug } from "@/lib/types";
+import AddMugForm from "@/components/AddMugForm";
 
 interface MugWithStatus extends Mug {
   current_floor: number | null;
@@ -11,10 +12,12 @@ interface MugWithStatus extends Mug {
 
 interface Props {
   mugs: MugWithStatus[];
+  onMugCreated?: () => void;
 }
 
-export default function MugDirectory({ mugs }: Props) {
+export default function MugDirectory({ mugs, onMugCreated }: Props) {
   const [search, setSearch] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const filtered = mugs.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -23,16 +26,33 @@ export default function MugDirectory({ mugs }: Props) {
 
   return (
     <div>
-      {/* Search */}
-      <div className="mb-4">
+      {/* Search + Add */}
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search mugs..."
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 text-base"
+          className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 text-base"
         />
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors active:scale-95 text-sm whitespace-nowrap"
+        >
+          + Add
+        </button>
       </div>
+
+      {/* Add Mug Form */}
+      {showAddForm && (
+        <AddMugForm
+          onClose={() => setShowAddForm(false)}
+          onMugCreated={() => {
+            setShowAddForm(false);
+            onMugCreated?.();
+          }}
+        />
+      )}
 
       {/* Grid */}
       {filtered.length === 0 ? (
