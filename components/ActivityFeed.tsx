@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ActivityEntry } from "@/lib/types";
 import { timeAgo } from "@/lib/time";
+import { getFloorName } from "@/lib/floors";
 
 interface Props {
   activities: ActivityEntry[];
@@ -44,9 +45,9 @@ export default function ActivityFeed({ activities }: Props) {
             <p className="text-sm text-white/80">
               <span className="font-medium text-amber-400">{a.mug_name}</span>
               {a.is_rescue ? (
-                <span className="text-green-400"> rescued! Returned to Floor {a.floor}</span>
+                <span className="text-green-400"> rescued! Returned to {getFloorName(a.floor)}</span>
               ) : (
-                <span> checked in on Floor {a.floor}</span>
+                <span> checked in at {getFloorName(a.floor)} <span className="text-white/30">(F{a.floor})</span></span>
               )}
             </p>
             <p className="text-xs text-white/30 mt-0.5">

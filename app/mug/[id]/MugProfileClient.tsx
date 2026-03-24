@@ -6,6 +6,7 @@ import TravelTimeline from "@/components/TravelTimeline";
 import FloorPicker from "@/components/FloorPicker";
 import SelfieGallery from "@/components/SelfieGallery";
 import MugChat from "@/components/MugChat";
+import { getFloorName } from "@/lib/floors";
 
 interface Props {
   initialProfile: MugProfile;
@@ -99,7 +100,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
           {/* Status badges */}
           <div className="flex flex-wrap gap-2 mt-4 justify-center">
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              Home: Floor {profile.home_floor}
+              Home: {getFloorName(profile.home_floor)}
             </span>
             {profile.current_floor !== null && (
               <span
@@ -111,7 +112,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
               >
                 {isHome
                   ? "At home!"
-                  : `Currently: Floor ${profile.current_floor}`}
+                  : `At: ${getFloorName(profile.current_floor!)}`}
               </span>
             )}
             {profile.days_away > 0 && !isHome && (
@@ -191,7 +192,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
                 </h3>
                 <p className="text-white/50 text-sm">
                   You&apos;re returning <span className="text-amber-400 font-medium">{profile.name}</span> to{" "}
-                  <span className="text-green-400 font-medium">Floor {profile.home_floor}</span>.
+                  <span className="text-green-400 font-medium">{getFloorName(profile.home_floor)} (Floor {profile.home_floor})</span>.
                   {" "}This is a rescue mission!
                 </p>
                 <div className="flex gap-3 pt-2">
