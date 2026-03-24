@@ -46,6 +46,29 @@ export interface Selfie {
   created_at: string;
 }
 
+export interface ActivityEntry {
+  id: number;
+  mug_id: number;
+  floor: number;
+  scanner_name: string;
+  is_rescue: boolean;
+  created_at: string;
+  mug_name: string;
+  mug_home_floor: number;
+  mug_personality: string;
+  mug_avatar_emoji: string;
+  mug_image_url: string | null;
+}
+
+export interface MugOnFloor {
+  id: number;
+  name: string;
+  home_floor: number;
+  avatar_emoji: string;
+  image_url: string | null;
+  current_floor: number;
+}
+
 export interface LeaderboardEntry {
   floor: number;
   mugs_hoarded: number;

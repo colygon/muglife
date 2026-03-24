@@ -123,7 +123,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
             <a
-              href="/mug/1"
+              href="/app"
               className="inline-block px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors"
             >
               Launch the App
@@ -375,7 +375,7 @@ export default function Home() {
                 Welcome to MugLife. Your mug misses you already.
               </p>
               <a
-                href="/mug/1"
+                href="/app"
                 className="inline-block px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors"
               >
                 Launch the App

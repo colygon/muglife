@@ -1,5 +1,5 @@
 import { sql, ensureSchema } from "./db";
-import type { Mug, MugProfile, Scan, MugMessage, Selfie } from "./types";
+import type { Mug, MugProfile, Scan, MugMessage, Selfie, ActivityEntry, MugOnFloor } from "./types";
 
 export async function getMugById(id: number): Promise<Mug | null> {
   await ensureSchema();
@@ -89,6 +89,34 @@ export async function leaveMessage(
     RETURNING *
   `;
   return rows[0] as MugMessage;
+}
+
+export async function getRecentActivity(limit: number = 30): Promise<ActivityEntry[]> {
+  await ensureSchema();
+  const rows = await sql`
+    SELECT s.id, s.mug_id, s.floor, s.scanner_name, s.is_rescue, s.created_at,
+      m.name as mug_name, m.home_floor as mug_home_floor,
+      m.personality as mug_personality, m.avatar_emoji as mug_avatar_emoji,
+      m.image_url as mug_image_url
+    FROM scans s
+    JOIN mugs m ON m.id = s.mug_id
+    ORDER BY s.created_at DESC
+    LIMIT ${limit}
+  `;
+  return rows as ActivityEntry[];
+}
+
+export async function getMugsByCurrentFloor(): Promise<MugOnFloor[]> {
+  await ensureSchema();
+  const rows = await sql`
+    SELECT DISTINCT ON (m.id)
+      m.id, m.name, m.home_floor, m.avatar_emoji, m.image_url,
+      s.floor as current_floor
+    FROM mugs m
+    LEFT JOIN scans s ON s.mug_id = m.id
+    ORDER BY m.id, s.created_at DESC
+  `;
+  return rows as MugOnFloor[];
 }
 
 export async function saveSelfie(
