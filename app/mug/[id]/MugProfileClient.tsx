@@ -15,6 +15,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
   const [profile, setProfile] = useState<MugProfile>(initialProfile);
   const [showFloorPicker, setShowFloorPicker] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showRescueConfirm, setShowRescueConfirm] = useState(false);
   const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
 
   const isHome =
@@ -174,6 +175,51 @@ export default function MugProfileClient({ initialProfile }: Props) {
           </div>
         )}
 
+        {/* Rescue Confirmation */}
+        {showRescueConfirm && (
+          <div className="fixed inset-0 z-40" onClick={() => setShowRescueConfirm(false)}>
+            <div className="absolute inset-0 bg-black/60" />
+            <div
+              className="absolute bottom-0 left-0 right-0 bg-[#1a1107] border-t border-green-500/20 rounded-t-2xl p-6 pb-8 animate-slide-up"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
+              <div className="text-center space-y-4">
+                <div className="text-4xl">🏠</div>
+                <h3 className="text-lg font-semibold text-white">
+                  Bring {profile.name} home?
+                </h3>
+                <p className="text-white/50 text-sm">
+                  You&apos;re returning <span className="text-amber-400 font-medium">{profile.name}</span> to{" "}
+                  <span className="text-green-400 font-medium">Floor {profile.home_floor}</span>.
+                  {" "}This is a rescue mission!
+                </p>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setShowRescueConfirm(false)}
+                    className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium transition-colors active:scale-[0.97]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRescueConfirm(false);
+                      const name =
+                        typeof window !== "undefined"
+                          ? localStorage.getItem("muglife-name") || "Someone"
+                          : "Someone";
+                      handleCheckIn(profile.home_floor, name);
+                    }}
+                    className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-400 text-black font-semibold transition-colors active:scale-[0.97]"
+                  >
+                    Rescue {profile.name}!
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Chat Overlay */}
         {showChat && (
           <MugChat
@@ -221,13 +267,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
           </button>
           {!isHome && profile.current_floor !== null && (
             <button
-              onClick={() => {
-                const name =
-                  typeof window !== "undefined"
-                    ? localStorage.getItem("muglife-name") || "Someone"
-                    : "Someone";
-                handleCheckIn(profile.home_floor, name);
-              }}
+              onClick={() => setShowRescueConfirm(true)}
               className="py-3 px-4 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium transition-colors active:scale-[0.97] border border-green-500/20"
               title="Return home"
             >

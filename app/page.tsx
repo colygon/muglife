@@ -121,12 +121,20 @@ export default function Home() {
             QR-coded mugs that know where they live, where they&apos;ve been,
             and how to guilt-trip you into bringing them home.
           </p>
-          <a
-            href="#signup"
-            className="inline-block mt-8 px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors"
-          >
-            Join the Waitlist
-          </a>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+            <a
+              href="/mug/1"
+              className="inline-block px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors"
+            >
+              Launch the App
+            </a>
+            <a
+              href="#signup"
+              className="inline-block px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-base transition-colors"
+            >
+              Join the Team
+            </a>
+          </div>
         </div>
       </section>
 
@@ -350,24 +358,28 @@ export default function Home() {
       <section className="px-6 py-16 sm:px-12 sm:py-24" id="signup">
         <div className="max-w-lg mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3 text-amber-300">
-            Want In?
+            Join the Team
           </h2>
           <p className="text-center text-white/50 mb-10">
-            We&apos;re building this for the tower. Drop your info and tell us
-            what features you&apos;d want. We&apos;ll keep you posted on
-            Telegram.
+            Help us build MugLife for the Tower. Drop your info and tell us
+            what features you&apos;d want.
           </p>
 
           {submitted ? (
             <div className="text-center py-12 px-6 rounded-2xl bg-white/5 border border-amber-500/30">
               <div className="text-5xl mb-4">&#9749;</div>
               <h3 className="text-xl font-semibold text-amber-200 mb-2">
-                You&apos;re on the list!
+                You&apos;re on the team!
               </h3>
-              <p className="text-white/50">
-                We&apos;ll reach out on Telegram when we&apos;re ready to deploy
-                the first mugs. Your mug misses you already.
+              <p className="text-white/50 mb-6">
+                Welcome to MugLife. Your mug misses you already.
               </p>
+              <a
+                href="/mug/1"
+                className="inline-block px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors"
+              >
+                Launch the App
+              </a>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -453,7 +465,7 @@ export default function Home() {
                 disabled={submitting}
                 className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? "Joining..." : "Join the Waitlist"}
+                {submitting ? "Joining..." : "Join the Team"}
               </button>
 
               <p className="text-xs text-center text-white/30">
