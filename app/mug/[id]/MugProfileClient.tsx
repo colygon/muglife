@@ -285,7 +285,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
             className="flex flex-col items-center gap-0.5 py-1 px-4 text-white/30 active:scale-95"
           >
             <span className="text-lg">⚡</span>
-            <span className="text-[10px] font-medium">Feed</span>
+            <span className="text-[10px] font-medium">Activity</span>
           </Link>
           <Link
             href="/app"

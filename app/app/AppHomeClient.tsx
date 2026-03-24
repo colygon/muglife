@@ -55,7 +55,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
   }, [refresh]);
 
   const tabs: { id: Tab; label: string; icon: string }[] = [
-    { id: "feed", label: "Feed", icon: "⚡" },
+    { id: "feed", label: "Activity", icon: "⚡" },
     { id: "tower", label: "Tower", icon: "🏢" },
     { id: "mugs", label: "Mugs", icon: "☕" },
   ];
