@@ -36,31 +36,36 @@ export default function AppHomeClient({ activities, floorMugs, allMugs }: Props)
             {allMugs.length} mugs
           </span>
         </div>
-
-        {/* Tabs */}
-        <div className="max-w-lg mx-auto px-4 flex gap-1 pb-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors active:scale-[0.97] ${
-                activeTab === tab.id
-                  ? "bg-amber-500/20 text-amber-400"
-                  : "text-white/40 hover:text-white/60"
-              }`}
-            >
-              <span className="mr-1">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 py-4">
+      <div className="max-w-lg mx-auto px-4 py-4 pb-24">
         {activeTab === "feed" && <ActivityFeed activities={activities} />}
         {activeTab === "tower" && <TowerView mugs={floorMugs} />}
         {activeTab === "mugs" && <MugDirectory mugs={allMugs} />}
+      </div>
+
+      {/* Bottom Dock */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-lg mx-auto px-6 py-2 flex justify-around">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                window.scrollTo(0, 0);
+              }}
+              className={`flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-colors active:scale-95 ${
+                activeTab === tab.id
+                  ? "text-amber-400"
+                  : "text-white/30"
+              }`}
+            >
+              <span className="text-xl">{tab.icon}</span>
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
