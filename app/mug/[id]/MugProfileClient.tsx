@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MugProfile } from "@/lib/types";
 import TravelTimeline from "@/components/TravelTimeline";
 import FloorPicker from "@/components/FloorPicker";
@@ -65,7 +66,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
 
   return (
     <div className="min-h-screen bg-[#1a1107] text-white font-[family-name:var(--font-geist-sans)]">
-      <div className="max-w-lg mx-auto px-4 pt-8 pb-32">
+      <div className="max-w-lg mx-auto px-4 pt-8 pb-40">
         {/* Toast message */}
         {checkInMessage && (
           <div className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-lg">
@@ -251,30 +252,55 @@ export default function MugProfileClient({ initialProfile }: Props) {
         )}
       </div>
 
-      {/* Fixed Bottom Actions */}
+      {/* Fixed Bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-lg mx-auto px-4 py-3 flex gap-3">
+        {/* Mug Actions */}
+        <div className="max-w-lg mx-auto px-4 pt-3 pb-1 flex gap-3">
           <button
             onClick={() => setShowFloorPicker(true)}
-            className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors active:scale-[0.97]"
+            className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors active:scale-[0.97]"
           >
             Check In
           </button>
           <button
             onClick={() => setShowChat(true)}
-            className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium transition-colors active:scale-[0.97]"
+            className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors active:scale-[0.97]"
           >
             Chat
           </button>
           {!isHome && profile.current_floor !== null && (
             <button
               onClick={() => setShowRescueConfirm(true)}
-              className="py-3 px-4 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium transition-colors active:scale-[0.97] border border-green-500/20"
+              className="py-2.5 px-4 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium transition-colors active:scale-[0.97] border border-green-500/20"
               title="Return home"
             >
               🏠
             </button>
           )}
+        </div>
+        {/* App Dock */}
+        <div className="max-w-lg mx-auto px-6 py-1 flex justify-around border-t border-white/5 mt-1">
+          <Link
+            href="/app"
+            className="flex flex-col items-center gap-0.5 py-1 px-4 text-white/30 active:scale-95"
+          >
+            <span className="text-lg">⚡</span>
+            <span className="text-[10px] font-medium">Feed</span>
+          </Link>
+          <Link
+            href="/app"
+            className="flex flex-col items-center gap-0.5 py-1 px-4 text-white/30 active:scale-95"
+          >
+            <span className="text-lg">🏢</span>
+            <span className="text-[10px] font-medium">Tower</span>
+          </Link>
+          <Link
+            href="/app"
+            className="flex flex-col items-center gap-0.5 py-1 px-4 text-white/30 active:scale-95"
+          >
+            <span className="text-lg">☕</span>
+            <span className="text-[10px] font-medium">Mugs</span>
+          </Link>
         </div>
       </div>
     </div>
