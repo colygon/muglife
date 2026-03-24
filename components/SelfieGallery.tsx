@@ -21,11 +21,15 @@ export default function SelfieGallery({
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   async function handleCapture() {
-    // Create a file input that opens camera on mobile
+    // Create a file input — use camera on mobile, file picker on desktop
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.capture = "user"; // Front camera for selfies
+    // Only set capture on mobile (it blocks file picker on desktop)
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      input.capture = "user"; // Front camera for selfies
+    }
 
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];

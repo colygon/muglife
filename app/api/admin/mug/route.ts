@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { put } from "@vercel/blob";
 import { createMug } from "@/lib/queries";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -32,25 +33,28 @@ Keep responses to 2-3 sentences max. Stay in character as a coffee mug.`;
         quality: "standard",
       });
 
-      const dalleUrl = imageRes.data[0]?.url;
+      const dalleUrl = imageRes.data?.[0]?.url;
       if (dalleUrl) {
-        // Download and save to public/mugs/
+        // Download from DALL-E and upload to Vercel Blob for permanent storage
         const imgResponse = await fetch(dalleUrl);
-        const imgBuffer = await imgResponse.arrayBuffer();
-        const fs = await import("fs");
-        const path = await import("path");
+        const imgBlob = await imgResponse.blob();
+        const filename = `mugs/${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}.png`;
 
-        const filename = name.toLowerCase().replace(/[^a-z0-9]/g, "-") + ".png";
-        const publicPath = path.join(process.cwd(), "public", "mugs", filename);
-        fs.writeFileSync(publicPath, Buffer.from(imgBuffer));
-        imageUrl = `/mugs/${filename}`;
+        try {
+          const blob = await put(filename, imgBlob, {
+            access: "public",
+            contentType: "image/png",
+          });
+          imageUrl = blob.url;
+        } catch {
+          // Blob storage not configured — use DALL-E URL directly (expires in 1hr)
+          imageUrl = dalleUrl;
+        }
       }
     } catch (imgErr) {
       console.error("Image generation failed, creating mug without image:", imgErr);
-      // Continue without image — mug will use emoji fallback
     }
 
-    // Extract a short personality label from description
     const personality = description
       ? description.split(".")[0].slice(0, 50)
       : "Friendly";
