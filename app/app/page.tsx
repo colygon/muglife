@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function AppHomePage() {
   const [activities, floorMugs, allMugs] = await Promise.all([
-    getRecentActivity(50),
+    getRecentActivity(500),
     getMugsByCurrentFloor(),
     getAllMugs(),
   ]);

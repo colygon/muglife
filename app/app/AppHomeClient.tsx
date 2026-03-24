@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ActivityEntry, MugOnFloor, Mug } from "@/lib/types";
 import ActivityFeed from "@/components/ActivityFeed";
@@ -15,8 +15,44 @@ interface Props {
   allMugs: (Mug & { current_floor: number | null; total_scans: number })[];
 }
 
-export default function AppHomeClient({ activities, floorMugs, allMugs }: Props) {
+export default function AppHomeClient({ activities: initialActivities, floorMugs: initialFloorMugs, allMugs: initialAllMugs }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("feed");
+  const [activities, setActivities] = useState(initialActivities);
+  const [floorMugs, setFloorMugs] = useState(initialFloorMugs);
+  const [allMugs, setAllMugs] = useState(initialAllMugs);
+
+  const refresh = useCallback(async () => {
+    try {
+      const [actRes, mugRes] = await Promise.all([
+        fetch("/api/activity"),
+        fetch("/api/mugs"),
+      ]);
+      if (actRes.ok) setActivities(await actRes.json());
+      if (mugRes.ok) {
+        const mugs = await mugRes.json();
+        setAllMugs(mugs);
+        // Derive floor positions from allMugs data
+        setFloorMugs(
+          mugs.map((m: Mug & { current_floor: number | null }) => ({
+            id: m.id,
+            name: m.name,
+            home_floor: m.home_floor,
+            avatar_emoji: m.avatar_emoji,
+            image_url: m.image_url,
+            current_floor: m.current_floor,
+          }))
+        );
+      }
+    } catch {
+      // Silently fail — will retry on next interval
+    }
+  }, []);
+
+  // Poll every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(refresh, 10000);
+    return () => clearInterval(interval);
+  }, [refresh]);
 
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: "feed", label: "Feed", icon: "⚡" },
