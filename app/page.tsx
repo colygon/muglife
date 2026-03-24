@@ -37,6 +37,7 @@ const MUGS = [
 
 export default function Home() {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [telegram, setTelegram] = useState("");
   const [suggestion, setSuggestion] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -89,7 +90,7 @@ export default function Home() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, telegram, suggestion }),
+        body: JSON.stringify({ name, email, telegram, suggestion }),
       });
       if (res.ok) {
         setSubmitted(true);
@@ -390,10 +391,29 @@ export default function Home() {
 
               <div>
                 <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-amber-200/80 mb-1.5"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tom@example.com"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label
                   htmlFor="telegram"
                   className="block text-sm font-medium text-amber-200/80 mb-1.5"
                 >
-                  Telegram Username
+                  Telegram Username{" "}
+                  <span className="text-white/30">(optional)</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
@@ -402,7 +422,6 @@ export default function Home() {
                   <input
                     id="telegram"
                     type="text"
-                    required
                     value={telegram}
                     onChange={(e) => setTelegram(e.target.value)}
                     placeholder="username"

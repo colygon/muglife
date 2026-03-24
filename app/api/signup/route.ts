@@ -1,54 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { neon } from "@neondatabase/serverless";
 
-const DATA_FILE = path.join(process.cwd(), "data", "signups.json");
+const sql = neon(process.env.DATABASE_URL!);
 
-interface Signup {
-  name: string;
-  telegram: string;
-  suggestion: string;
-  timestamp: string;
-}
+// Auto-create the table on first request
+let tableCreated = false;
 
-async function readSignups(): Promise<Signup[]> {
-  try {
-    const data = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writeSignups(signups: Signup[]) {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(signups, null, 2));
+async function ensureTable() {
+  if (tableCreated) return;
+  await sql`
+    CREATE TABLE IF NOT EXISTS signups (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      telegram TEXT DEFAULT '',
+      suggestion TEXT DEFAULT '',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  tableCreated = true;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, telegram, suggestion } = body;
+    const { name, email, telegram, suggestion } = body;
 
-    if (!name || !telegram) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: "Name and Telegram username are required" },
+        { error: "Name and email are required" },
         { status: 400 }
       );
     }
 
-    const signups = await readSignups();
-    signups.push({
-      name: name.trim(),
-      telegram: telegram.trim().replace(/^@/, ""),
-      suggestion: (suggestion || "").trim(),
-      timestamp: new Date().toISOString(),
-    });
+    await ensureTable();
 
-    await writeSignups(signups);
+    await sql`
+      INSERT INTO signups (name, email, telegram, suggestion)
+      VALUES (${name.trim()}, ${email.trim()}, ${(telegram || "").trim().replace(/^@/, "")}, ${(suggestion || "").trim()})
+    `;
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Failed to save signup" },
       { status: 500 }
@@ -57,6 +51,15 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  const signups = await readSignups();
-  return NextResponse.json({ count: signups.length, signups });
+  try {
+    await ensureTable();
+    const signups = await sql`SELECT * FROM signups ORDER BY created_at DESC`;
+    return NextResponse.json({ count: signups.length, signups });
+  } catch (error) {
+    console.error("Error reading signups:", error);
+    return NextResponse.json(
+      { error: "Failed to read signups" },
+      { status: 500 }
+    );
+  }
 }
