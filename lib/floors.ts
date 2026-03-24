@@ -7,15 +7,22 @@ export interface FloorInfo {
 
 export const FLOORS: FloorInfo[] = [
   {
+    number: -1,
+    name: "Rave Room",
+    shortName: "Rave Room",
+    description:
+      "The basement. When the sun goes down, the bass comes up.",
+  },
+  {
     number: 1,
-    name: "Lobby",
-    shortName: "Lobby",
+    name: "Front Desk",
+    shortName: "Front Desk",
     description: "The ground floor entrance to Frontier Tower.",
   },
   {
     number: 2,
     name: "Event Spaceship",
-    shortName: "Events",
+    shortName: "Event Spaceship",
     description:
       "300-person event space, 4 conference rooms, high ceilings, industrial-chic vibe — ideal for meet-ups, workshops, and tech hackathons.",
   },
@@ -115,4 +122,8 @@ export function getFloorInfo(floor: number): FloorInfo | undefined {
 
 export function getFloorName(floor: number): string {
   return getFloorInfo(floor)?.shortName || `Floor ${floor}`;
+}
+
+export function getFloorLabel(floor: number): string {
+  return floor === -1 ? "B" : String(floor);
 }

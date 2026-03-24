@@ -92,7 +92,7 @@ export default function FloorPicker({
                     : "bg-white/5 text-white/60 border border-white/10 hover:border-white/20"
                 }`}
               >
-                {floor}
+                {floor === -1 ? "B" : floor}
                 {floor === homeFloor && selectedFloor !== floor && (
                   <span className="block text-[10px] -mt-0.5 opacity-60">
                     home
@@ -110,7 +110,7 @@ export default function FloorPicker({
             {submitting
               ? "Checking in..."
               : selectedFloor
-              ? `Check in on Floor ${selectedFloor}`
+              ? `Check in on Floor ${selectedFloor === -1 ? "B" : selectedFloor}`
               : "Select a floor"}
           </button>
         </>

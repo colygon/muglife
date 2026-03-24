@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MugOnFloor } from "@/lib/types";
-import { FLOORS, getFloorInfo } from "@/lib/floors";
+import { FLOORS, getFloorLabel } from "@/lib/floors";
 
 interface Props {
   mugs: MugOnFloor[];
@@ -56,7 +56,7 @@ export default function TowerView({ mugs }: Props) {
                       hasAnyMugs ? "text-amber-400/80" : "text-white/20"
                     }`}
                   >
-                    {floor.number}
+                    {getFloorLabel(floor.number)}
                   </span>
                   <div className={`w-px h-4 ${hasAnyMugs ? "bg-amber-500/20" : "bg-white/5"}`} />
                   <span
