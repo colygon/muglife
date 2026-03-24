@@ -3,6 +3,9 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
 
+const GOOGLE_SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbwbhCK21OKTBMiuUotztJRECS2lSEjWZeY5OIZBKjnfyn4fR4ZDL532pT92IR4fHUFkSQ/exec";
+
 // Auto-create the table on first request
 let tableCreated = false;
 
@@ -35,10 +38,25 @@ export async function POST(request: NextRequest) {
 
     await ensureTable();
 
-    await sql`
-      INSERT INTO signups (name, email, telegram, suggestion)
-      VALUES (${name.trim()}, ${email.trim()}, ${(telegram || "").trim().replace(/^@/, "")}, ${(suggestion || "").trim()})
-    `;
+    const cleanData = {
+      name: name.trim(),
+      email: email.trim(),
+      telegram: (telegram || "").trim().replace(/^@/, ""),
+      suggestion: (suggestion || "").trim(),
+    };
+
+    // Write to Postgres and Google Sheet in parallel
+    await Promise.all([
+      sql`
+        INSERT INTO signups (name, email, telegram, suggestion)
+        VALUES (${cleanData.name}, ${cleanData.email}, ${cleanData.telegram}, ${cleanData.suggestion})
+      `,
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleanData),
+      }).catch((err) => console.error("Google Sheet write failed:", err)),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
