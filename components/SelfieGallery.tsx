@@ -168,10 +168,16 @@ export default function SelfieGallery({
           </div>
           <div className="bg-[#1a1107] p-3 flex gap-2">
             <button
+              onClick={() => setMugifiedImage(null)}
+              className="flex-1 py-2 rounded-lg bg-white/10 text-white font-medium text-sm active:scale-95"
+            >
+              Retake
+            </button>
+            <button
               onClick={handleDownloadMugified}
               className="flex-1 py-2 rounded-lg bg-amber-500 text-black font-semibold text-sm active:scale-95"
             >
-              Download
+              Save
             </button>
             <button
               onClick={() => {
@@ -189,12 +195,6 @@ export default function SelfieGallery({
               className="flex-1 py-2 rounded-lg bg-white/10 text-white font-medium text-sm active:scale-95"
             >
               Share
-            </button>
-            <button
-              onClick={() => setMugifiedImage(null)}
-              className="py-2 px-3 rounded-lg bg-white/5 text-white/40 text-sm active:scale-95"
-            >
-              &times;
             </button>
           </div>
         </div>
