@@ -64,6 +64,12 @@ export async function ensureSchema() {
     )
   `;
 
+  // New columns for game universe
+  await sql`ALTER TABLE mugs ADD COLUMN IF NOT EXISTS voice_intro_text TEXT`;
+  await sql`ALTER TABLE mugs ADD COLUMN IF NOT EXISTS faction TEXT`;
+  await sql`ALTER TABLE mugs ADD COLUMN IF NOT EXISTS level INT DEFAULT 1`;
+  await sql`ALTER TABLE mugs ADD COLUMN IF NOT EXISTS physical_description TEXT`;
+
   // Indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_scans_mug_id ON scans(mug_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_scans_created_at ON scans(created_at DESC)`;

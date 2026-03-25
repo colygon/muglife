@@ -1,31 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ensureSchema, sql } from "@/lib/db";
+import { put, head } from "@vercel/blob";
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
-const MUGS: Record<
-  string,
-  { voiceId: string; text: string }
-> = {
-  deborah: {
-    voiceId: "FGY2WhTYpPnrIDTdsKH5", // Laura - Quirky
-    text: "Hi, I'm Deborah. I live on the 9th floor. I've been sitting on Floor 12 for six days now. Six days! Do you know what it's like to be surrounded by mugs that aren't your friends? Please, I'm begging you, just take me home. I miss my dishwasher.",
-  },
-  gerald: {
-    voiceId: "JBFqnCBsd6RMkjVDRZzb", // George - Storyteller
-    text: "The name's Gerald. Floor 15, born and raised. I've seen things you wouldn't believe. Someone left me in the makerspace for three weeks. Three weeks! I had things growing in me. But I survived. I always survive. Now if you'll excuse me, I need to get back upstairs.",
-  },
-  mug47: {
-    voiceId: "N2lVS1w4EtoT3dr4eOWO", // Callum - Trickster
-    text: "Oh hey. I'm Mug 47. No, I don't have a fancy name. I'm from Floor 2. You know, the floor where everyone leaves their dishes in the sink instead of the dishwasher? Yeah, that floor. I've given up trying to get home. I just travel now. I'm a nomad. A ceramic nomad.",
-  },
-};
-
 export async function GET(request: NextRequest) {
-  const mugId = request.nextUrl.searchParams.get("mug");
+  const mugId = request.nextUrl.searchParams.get("id");
 
-  if (!mugId || !MUGS[mugId]) {
+  if (!mugId) {
     return NextResponse.json(
-      { error: "Invalid mug. Choose: deborah, gerald, or mug47" },
+      { error: "Missing id parameter" },
       { status: 400 }
     );
   }
@@ -37,10 +21,45 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const mug = MUGS[mugId];
+  await ensureSchema();
 
+  // Look up voice info from DB
+  const rows = await sql`
+    SELECT voice_id, voice_intro_text, name FROM mugs WHERE id = ${Number(mugId)}
+  `;
+
+  if (!rows[0]) {
+    return NextResponse.json({ error: "Mug not found" }, { status: 404 });
+  }
+
+  const { voice_id, voice_intro_text, name } = rows[0] as {
+    voice_id: string | null;
+    voice_intro_text: string | null;
+    name: string;
+  };
+
+  if (!voice_id || !voice_intro_text) {
+    return NextResponse.json(
+      { error: `No voice configured for ${name}` },
+      { status: 404 }
+    );
+  }
+
+  // Check if we already have this voice cached in Blob storage
+  const blobKey = `voices/mug-${mugId}-intro.mp3`;
+  try {
+    const existing = await head(blobKey);
+    if (existing) {
+      // Redirect to the cached blob URL
+      return NextResponse.redirect(existing.url);
+    }
+  } catch {
+    // Blob not found, generate it
+  }
+
+  // Generate voice via ElevenLabs
   const response = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${mug.voiceId}`,
+    `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
     {
       method: "POST",
       headers: {
@@ -48,7 +67,7 @@ export async function GET(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: mug.text,
+        text: voice_intro_text,
         model_id: "eleven_multilingual_v2",
         voice_settings: {
           stability: 0.4,
@@ -70,6 +89,17 @@ export async function GET(request: NextRequest) {
   }
 
   const audioBuffer = await response.arrayBuffer();
+
+  // Cache in Vercel Blob for future requests
+  try {
+    await put(blobKey, new Blob([audioBuffer], { type: "audio/mpeg" }), {
+      access: "public",
+      contentType: "audio/mpeg",
+    });
+  } catch (e) {
+    console.error("Failed to cache voice in blob:", e);
+    // Non-fatal — still serve the audio
+  }
 
   return new NextResponse(audioBuffer, {
     headers: {

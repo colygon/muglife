@@ -2,25 +2,15 @@
 
 import { useState, useRef } from "react";
 
-// Map database mug IDs to the voice API mug keys
-const VOICE_MAP: Record<number, string> = {
-  1: "deborah",
-  2: "gerald",
-  3: "mug47",
-};
-
 interface Props {
   mugId: number;
   mugName: string;
 }
 
 export default function MugVoiceIntro({ mugId, mugName }: Props) {
-  const voiceKey = VOICE_MAP[mugId];
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  if (!voiceKey) return null; // No voice available for this mug
 
   async function togglePlay() {
     if (audioRef.current) {
@@ -32,7 +22,7 @@ export default function MugVoiceIntro({ mugId, mugName }: Props) {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/mug-voice?mug=${voiceKey}`);
+      const res = await fetch(`/api/mug-voice?id=${mugId}`);
       if (!res.ok) throw new Error("Voice failed");
 
       const blob = await res.blob();
