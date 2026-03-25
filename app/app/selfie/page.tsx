@@ -76,9 +76,8 @@ function SelfiePageInner() {
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d")!;
-    // Mirror the image (front camera)
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
+    // Draw raw frame — no flip. The video preview CSS mirrors it for the user,
+    // but the raw capture is the correct orientation for Gemini.
     ctx.drawImage(video, 0, 0);
 
     const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
