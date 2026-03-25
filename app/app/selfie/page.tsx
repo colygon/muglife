@@ -86,19 +86,8 @@ function SelfiePageInner() {
     // Stop camera
     stream?.getTracks().forEach((t) => t.stop());
 
-    // Save selfie to mug profile + mugify
+    // Mugify the selfie — only the mugified version gets saved (on Save/Share)
     if (selectedMug) {
-      // Upload original selfie (best-effort)
-      fetch(dataUrl)
-        .then((r) => r.blob())
-        .then((blob) => {
-          const fd = new FormData();
-          fd.append("image", blob, "selfie.jpg");
-          fd.append("author", localStorage.getItem("muglife-name") || "Anonymous");
-          return fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
-        })
-        .catch(() => {});
-
       mugifyPhoto(dataUrl, selectedMug.id);
     }
   }

@@ -54,28 +54,8 @@ export default function SelfieGallery({
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      // Upload selfie (best-effort — might fail without Blob token)
-      const author =
-        typeof window !== "undefined"
-          ? localStorage.getItem("muglife-name") || "Anonymous"
-          : "Anonymous";
-
-      setUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append("image", file);
-        formData.append("author", author);
-        const res = await fetch(`/api/mug/${mugId}/selfie`, {
-          method: "POST",
-          body: formData,
-        });
-        if (res.ok) onSelfieAdded();
-      } catch {
-        // Selfie upload failed — continue to mugify anyway
-      }
+      // Mugify the selfie with AI — only the mugified version gets saved (on Save)
       setUploading(false);
-
-      // Mugify the selfie with AI (flip for front camera)
       setMugifying(true);
       try {
         const flippedBlob = await flipImageHorizontally(file);
@@ -102,12 +82,39 @@ export default function SelfieGallery({
     input.click();
   }
 
-  function handleDownloadMugified() {
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSaveMugified() {
     if (!mugifiedImage) return;
+    setSaving(true);
+    try {
+      const res = await fetch(mugifiedImage);
+      const blob = await res.blob();
+      const author =
+        typeof window !== "undefined"
+          ? localStorage.getItem("muglife-name") || "Anonymous"
+          : "Anonymous";
+      const fd = new FormData();
+      fd.append("image", blob, "mugified-selfie.png");
+      fd.append("author", author);
+      const uploadRes = await fetch(`/api/mug/${mugId}/selfie`, {
+        method: "POST",
+        body: fd,
+      });
+      if (uploadRes.ok) {
+        onSelfieAdded();
+        setSaved(true);
+      }
+    } catch {
+      // Still download even if upload fails
+    }
+    // Also download to device
     const link = document.createElement("a");
     link.download = `muglife-${mugName.toLowerCase().replace(/[^a-z0-9]/g, "-")}-mugified.png`;
     link.href = mugifiedImage;
     link.click();
+    setSaving(false);
   }
 
   return (
@@ -168,16 +175,17 @@ export default function SelfieGallery({
           </div>
           <div className="bg-[#1a1107] p-3 flex gap-2">
             <button
-              onClick={() => setMugifiedImage(null)}
+              onClick={() => { setMugifiedImage(null); setSaved(false); }}
               className="flex-1 py-2 rounded-lg bg-white/10 text-white font-medium text-sm active:scale-95"
             >
               Retake
             </button>
             <button
-              onClick={handleDownloadMugified}
-              className="flex-1 py-2 rounded-lg bg-amber-500 text-black font-semibold text-sm active:scale-95"
+              onClick={handleSaveMugified}
+              disabled={saving || saved}
+              className="flex-1 py-2 rounded-lg bg-amber-500 text-black font-semibold text-sm active:scale-95 disabled:opacity-50"
             >
-              Save
+              {saving ? "Saving..." : saved ? "Saved!" : "Save"}
             </button>
             <button
               onClick={() => {
