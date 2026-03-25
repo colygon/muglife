@@ -18,17 +18,17 @@ export default function SelfieGallery({
   onSelfieAdded,
 }: Props) {
   const [uploading, setUploading] = useState(false);
+  const [mugifying, setMugifying] = useState(false);
+  const [mugifiedImage, setMugifiedImage] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   async function handleCapture() {
-    // Create a file input — use camera on mobile, file picker on desktop
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    // Only set capture on mobile (it blocks file picker on desktop)
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
-      input.capture = "user"; // Front camera for selfies
+      input.capture = "user";
     }
 
     input.onchange = async (e) => {
@@ -42,6 +42,7 @@ export default function SelfieGallery({
             ? localStorage.getItem("muglife-name") || "Anonymous"
             : "Anonymous";
 
+        // Upload selfie
         const formData = new FormData();
         formData.append("image", file);
         formData.append("author", author);
@@ -54,14 +55,42 @@ export default function SelfieGallery({
         if (res.ok) {
           onSelfieAdded();
         }
+
+        // Also mugify it!
+        setUploading(false);
+        setMugifying(true);
+
+        const mugifyData = new FormData();
+        mugifyData.append("image", file);
+
+        const mugifyRes = await fetch(`/api/mug/${mugId}/mugify`, {
+          method: "POST",
+          body: mugifyData,
+        });
+
+        if (mugifyRes.ok) {
+          const data = await mugifyRes.json();
+          if (data.image) {
+            setMugifiedImage(data.image);
+          }
+        }
       } catch (err) {
-        console.error("Upload failed:", err);
+        console.error("Upload/mugify failed:", err);
       } finally {
         setUploading(false);
+        setMugifying(false);
       }
     };
 
     input.click();
+  }
+
+  function handleDownloadMugified() {
+    if (!mugifiedImage) return;
+    const link = document.createElement("a");
+    link.download = `muglife-${mugName.toLowerCase().replace(/[^a-z0-9]/g, "-")}-mugified.png`;
+    link.href = mugifiedImage;
+    link.click();
   }
 
   return (
@@ -72,18 +101,98 @@ export default function SelfieGallery({
         </h2>
         <button
           onClick={handleCapture}
-          disabled={uploading}
+          disabled={uploading || mugifying}
           className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors active:scale-95 disabled:opacity-50"
         >
-          {uploading ? "Uploading..." : "📸 Take Selfie"}
+          {uploading
+            ? "Uploading..."
+            : mugifying
+            ? "Mugifying..."
+            : "📸 Take Selfie"}
         </button>
       </div>
 
-      {selfies.length === 0 ? (
+      {/* Mugifying indicator */}
+      {mugifying && (
+        <div className="mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <svg
+              className="w-5 h-5 animate-spin text-amber-400"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray="31.4 31.4"
+              />
+            </svg>
+            <span className="text-amber-400 font-medium text-sm">
+              Mugifying your selfie...
+            </span>
+          </div>
+          <p className="text-xs text-white/40">
+            AI is replacing your mug with {mugName}&apos;s character!
+          </p>
+        </div>
+      )}
+
+      {/* Mugified result */}
+      {mugifiedImage && (
+        <div className="mb-4 rounded-xl overflow-hidden border-2 border-amber-500/30">
+          <div className="relative">
+            <img
+              src={mugifiedImage}
+              alt={`Mugified selfie with ${mugName}`}
+              className="w-full"
+            />
+            <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-amber-500 text-black text-xs font-bold">
+              MUGIFIED
+            </div>
+          </div>
+          <div className="bg-[#1a1107] p-3 flex gap-2">
+            <button
+              onClick={handleDownloadMugified}
+              className="flex-1 py-2 rounded-lg bg-amber-500 text-black font-semibold text-sm active:scale-95"
+            >
+              Download
+            </button>
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  fetch(mugifiedImage)
+                    .then((r) => r.blob())
+                    .then((blob) => {
+                      const file = new File([blob], "mugified.png", {
+                        type: "image/png",
+                      });
+                      navigator.share({ files: [file] }).catch(() => {});
+                    });
+                }
+              }}
+              className="flex-1 py-2 rounded-lg bg-white/10 text-white font-medium text-sm active:scale-95"
+            >
+              Share
+            </button>
+            <button
+              onClick={() => setMugifiedImage(null)}
+              className="py-2 px-3 rounded-lg bg-white/5 text-white/40 text-sm active:scale-95"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selfies.length === 0 && !mugifiedImage ? (
         <div className="text-center py-6">
           <div className="text-3xl mb-2">📷</div>
           <p className="text-white/40 text-sm">
-            No selfies yet! Be the first to take one with {mugName}.
+            No selfies yet! Take one and watch {mugName} come to life!
           </p>
         </div>
       ) : (
