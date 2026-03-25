@@ -160,25 +160,37 @@ export default function SelfiePage() {
 
       {/* Mug selector */}
       {!captured && mugs.length > 0 && (
-        <div className="px-4 py-2 bg-black/60">
-          <p className="text-xs text-white/40 mb-2">Mug to add to your photo:</p>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="px-4 py-2 bg-black/80 flex-shrink-0">
+          <p className="text-xs text-white/40 mb-2">Pick a mug:</p>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
             {mugs.map((mug) => (
               <button
                 key={mug.id}
                 onClick={() => setSelectedMug(mug)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs whitespace-nowrap flex-shrink-0 transition-all active:scale-95 ${
-                  selectedMug?.id === mug.id
-                    ? "bg-amber-500 text-black font-bold"
-                    : "bg-white/10 text-white/60"
+                className={`flex flex-col items-center gap-1 flex-shrink-0 w-16 transition-all active:scale-90 ${
+                  selectedMug?.id === mug.id ? "opacity-100" : "opacity-50"
                 }`}
               >
-                {mug.image_url ? (
-                  <img src={mug.image_url} alt="" className="w-5 h-5 rounded-full object-cover" />
-                ) : (
-                  <span>{mug.avatar_emoji}</span>
-                )}
-                {mug.name}
+                <div
+                  className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-colors ${
+                    selectedMug?.id === mug.id
+                      ? "border-amber-500"
+                      : "border-transparent"
+                  }`}
+                >
+                  {mug.image_url ? (
+                    <img src={mug.image_url} alt={mug.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-white/10 flex items-center justify-center text-2xl">
+                      {mug.avatar_emoji}
+                    </div>
+                  )}
+                </div>
+                <span className={`text-[10px] truncate w-full text-center ${
+                  selectedMug?.id === mug.id ? "text-amber-400 font-bold" : "text-white/50"
+                }`}>
+                  {mug.name}
+                </span>
               </button>
             ))}
           </div>

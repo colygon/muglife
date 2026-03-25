@@ -18,6 +18,10 @@ body {
   touch-action: manipulation;
 }
 
+/* Hide scrollbar but keep scrolling */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Animations */
 @keyframes slide-up {
   from { transform: translateY(100%); }
