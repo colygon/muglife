@@ -35,51 +35,48 @@ export default function SelfieGallery({
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      // Upload selfie (best-effort — might fail without Blob token)
+      const author =
+        typeof window !== "undefined"
+          ? localStorage.getItem("muglife-name") || "Anonymous"
+          : "Anonymous";
+
       setUploading(true);
       try {
-        const author =
-          typeof window !== "undefined"
-            ? localStorage.getItem("muglife-name") || "Anonymous"
-            : "Anonymous";
-
-        // Upload selfie
         const formData = new FormData();
         formData.append("image", file);
         formData.append("author", author);
-
         const res = await fetch(`/api/mug/${mugId}/selfie`, {
           method: "POST",
           body: formData,
         });
+        if (res.ok) onSelfieAdded();
+      } catch {
+        // Selfie upload failed — continue to mugify anyway
+      }
+      setUploading(false);
 
-        if (res.ok) {
-          onSelfieAdded();
-        }
-
-        // Also mugify it!
-        setUploading(false);
-        setMugifying(true);
-
+      // Mugify the selfie with AI
+      setMugifying(true);
+      try {
         const mugifyData = new FormData();
         mugifyData.append("image", file);
-
         const mugifyRes = await fetch(`/api/mug/${mugId}/mugify`, {
           method: "POST",
           body: mugifyData,
         });
-
         if (mugifyRes.ok) {
           const data = await mugifyRes.json();
           if (data.image) {
             setMugifiedImage(data.image);
           }
+        } else {
+          console.error("Mugify failed:", await mugifyRes.text());
         }
       } catch (err) {
-        console.error("Upload/mugify failed:", err);
-      } finally {
-        setUploading(false);
-        setMugifying(false);
+        console.error("Mugify error:", err);
       }
+      setMugifying(false);
     };
 
     input.click();
