@@ -148,7 +148,7 @@ export default function SelfiePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-[family-name:var(--font-geist-sans)] flex flex-col">
+    <div className="h-screen max-h-screen bg-black text-white font-[family-name:var(--font-geist-sans)] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/80 z-10">
         <Link href="/app" className="text-white/60 text-sm">
@@ -186,7 +186,7 @@ export default function SelfiePage() {
       )}
 
       {/* Camera / Result */}
-      <div className="flex-1 relative flex items-center justify-center bg-black overflow-hidden">
+      <div className="flex-1 min-h-0 relative flex items-center justify-center bg-black overflow-hidden">
         {!captured ? (
           <>
             <video
@@ -194,7 +194,7 @@ export default function SelfiePage() {
               autoPlay
               playsInline
               muted
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover max-h-full"
               style={{ transform: "scaleX(-1)" }}
             />
             {error && (

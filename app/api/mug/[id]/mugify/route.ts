@@ -51,7 +51,7 @@ CRITICAL RULES:
 - Make it look fun and shareable!`;
 
     const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: "gemini-2.5-flash-image",
       contents: {
         parts: [
           { text: prompt },
