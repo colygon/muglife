@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Selfie } from "@/lib/types";
 import { timeAgo } from "@/lib/time";
 
@@ -96,17 +97,12 @@ export default function SelfieGallery({
         <h2 className="text-lg font-semibold text-amber-200">
           Selfies with {mugName}
         </h2>
-        <button
-          onClick={handleCapture}
-          disabled={uploading || mugifying}
-          className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors active:scale-95 disabled:opacity-50"
+        <Link
+          href={`/app/selfie?mug=${mugId}`}
+          className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-sm font-medium hover:bg-amber-500/30 transition-colors active:scale-95"
         >
-          {uploading
-            ? "Uploading..."
-            : mugifying
-            ? "Mugifying..."
-            : "📸 Take Selfie"}
-        </button>
+          📸 Take Selfie
+        </Link>
       </div>
 
       {/* Mugifying indicator */}

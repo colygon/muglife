@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mug } from "@/lib/types";
 
 export default function SelfiePage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-black" />}>
+      <SelfiePageInner />
+    </Suspense>
+  );
+}
+
+function SelfiePageInner() {
   const searchParams = useSearchParams();
   const preselectedMugId = searchParams.get("mug");
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -79,8 +87,19 @@ export default function SelfiePage() {
     // Stop camera
     stream?.getTracks().forEach((t) => t.stop());
 
-    // Auto-mugify
+    // Save selfie to mug profile + mugify
     if (selectedMug) {
+      // Upload original selfie (best-effort)
+      fetch(dataUrl)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const fd = new FormData();
+          fd.append("image", blob, "selfie.jpg");
+          fd.append("author", localStorage.getItem("muglife-name") || "Anonymous");
+          return fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
+        })
+        .catch(() => {});
+
       mugifyPhoto(dataUrl, selectedMug.id);
     }
   }
