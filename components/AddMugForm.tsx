@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FLOORS } from "@/lib/floors";
+import MugQRCode from "@/components/MugQRCode";
 
 interface Props {
   onMugCreated: () => void;
@@ -14,6 +15,7 @@ export default function AddMugForm({ onMugCreated, onClose }: Props) {
   const [homeFloor, setHomeFloor] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [createdMug, setCreatedMug] = useState<{ id: number; name: string } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,10 +36,13 @@ export default function AddMugForm({ onMugCreated, onClose }: Props) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create mug");
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to create mug");
       }
 
+      const data = await res.json();
+      setCreatedMug({ id: data.mug.id, name: data.mug.name });
+      setCreating(false);
       onMugCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -54,6 +59,27 @@ export default function AddMugForm({ onMugCreated, onClose }: Props) {
       >
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
 
+        {createdMug ? (
+          /* Success — show QR code */
+          <div className="text-center space-y-4">
+            <div className="text-5xl mb-2">🎉</div>
+            <h2 className="text-xl font-bold text-amber-400">
+              {createdMug.name} is alive!
+            </h2>
+            <p className="text-sm text-white/40">
+              Print this QR code and stick it on the mug.
+            </p>
+            <MugQRCode mugId={createdMug.id} mugName={createdMug.name} />
+            <a
+              href={`/mug/${createdMug.id}`}
+              className="inline-block mt-4 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors"
+            >
+              View {createdMug.name}&apos;s Profile
+            </a>
+          </div>
+        ) : (
+        /* Form */
+        <>
         <h2 className="text-xl font-bold text-amber-400 text-center mb-1">
           Add a Mug
         </h2>
@@ -150,6 +176,8 @@ export default function AddMugForm({ onMugCreated, onClose }: Props) {
             </p>
           )}
         </form>
+        </>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import TravelTimeline from "@/components/TravelTimeline";
 import FloorPicker from "@/components/FloorPicker";
 import SelfieGallery from "@/components/SelfieGallery";
 import MugChat from "@/components/MugChat";
+import MugQRCode from "@/components/MugQRCode";
+import MugVoiceIntro from "@/components/MugVoiceIntro";
 import { getFloorName } from "@/lib/floors";
 
 interface Props {
@@ -98,6 +100,11 @@ export default function MugProfileClient({ initialProfile }: Props) {
             &ldquo;{profile.personality}&rdquo;
           </p>
 
+          {/* Voice intro */}
+          <div className="mt-3">
+            <MugVoiceIntro mugId={profile.id} mugName={profile.name} />
+          </div>
+
           {/* Status badges */}
           <div className="flex flex-wrap gap-2 mt-4 justify-center">
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -153,6 +160,11 @@ export default function MugProfileClient({ initialProfile }: Props) {
             mugName={profile.name}
             onSelfieAdded={refreshProfile}
           />
+        </div>
+
+        {/* QR Code */}
+        <div className="mb-8">
+          <MugQRCode mugId={profile.id} mugName={profile.name} />
         </div>
 
         {/* Guestbook */}
