@@ -314,7 +314,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
             <span className="text-[10px] font-medium">Mugs</span>
           </Link>
           <Link
-            href="/app/selfie"
+            href={`/app/selfie?mug=${profile.id}`}
             className="flex flex-col items-center gap-0.5 py-1 px-3 text-pink-400 active:scale-95"
           >
             <span className="text-lg">📸</span>

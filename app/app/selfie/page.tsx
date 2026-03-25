@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mug } from "@/lib/types";
 
 export default function SelfiePage() {
+  const searchParams = useSearchParams();
+  const preselectedMugId = searchParams.get("mug");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -22,12 +25,16 @@ export default function SelfiePage() {
       .then((data) => {
         setMugs(data);
         if (data.length > 0) {
-          // Pick a random mug
-          setSelectedMug(data[Math.floor(Math.random() * data.length)]);
+          // Pre-select from URL param, or pick random
+          const preselected = preselectedMugId
+            ? data.find((m: Mug) => m.id === parseInt(preselectedMugId))
+            : null;
+          setSelectedMug(preselected || data[Math.floor(Math.random() * data.length)]);
         }
       })
       .catch(() => {});
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectedMugId]);
 
   // Start camera
   useEffect(() => {
