@@ -139,6 +139,7 @@ function SelfiePageInner() {
     setMugifiedImage(null);
     setMugifying(false);
     setError(null);
+    setSaved(false);
     // Restart camera
     navigator.mediaDevices
       .getUserMedia({
@@ -154,16 +155,57 @@ function SelfiePageInner() {
       .catch(() => {});
   }
 
-  function handleDownload() {
-    if (!mugifiedImage) return;
-    const link = document.createElement("a");
-    link.download = `muglife-selfie-${Date.now()}.png`;
-    link.href = mugifiedImage;
-    link.click();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleSave() {
+    if (!mugifiedImage || !selectedMug) return;
+    setSaving(true);
+    try {
+      // Convert data URL to blob
+      const res = await fetch(mugifiedImage);
+      const blob = await res.blob();
+
+      // Upload to mug's selfie gallery
+      const fd = new FormData();
+      fd.append("image", blob, "mugified-selfie.png");
+      fd.append("author", localStorage.getItem("muglife-name") || "Anonymous");
+      await fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
+
+      // Also download to device
+      const link = document.createElement("a");
+      link.download = `muglife-${selectedMug.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}.png`;
+      link.href = mugifiedImage;
+      link.click();
+
+      setSaved(true);
+    } catch {
+      // Still download even if upload fails
+      const link = document.createElement("a");
+      link.download = `muglife-selfie-${Date.now()}.png`;
+      link.href = mugifiedImage;
+      link.click();
+    }
+    setSaving(false);
   }
 
   function handleShare() {
     if (!mugifiedImage || !navigator.share) return;
+
+    // Save to gallery in background when sharing too
+    if (selectedMug && !saved) {
+      fetch(mugifiedImage)
+        .then((r) => r.blob())
+        .then((blob) => {
+          const fd = new FormData();
+          fd.append("image", blob, "mugified-selfie.png");
+          fd.append("author", localStorage.getItem("muglife-name") || "Anonymous");
+          fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
+          setSaved(true);
+        })
+        .catch(() => {});
+    }
+
     fetch(mugifiedImage)
       .then((r) => r.blob())
       .then((blob) => {
@@ -287,10 +329,11 @@ function SelfiePageInner() {
               Retake
             </button>
             <button
-              onClick={handleDownload}
-              className="flex-1 py-3 rounded-xl bg-amber-500 text-black font-semibold active:scale-95"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 py-3 rounded-xl bg-amber-500 text-black font-semibold active:scale-95 disabled:opacity-50"
             >
-              Download
+              {saving ? "Saving..." : saved ? "Saved!" : "Save"}
             </button>
             <button
               onClick={handleShare}
