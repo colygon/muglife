@@ -1,6 +1,8 @@
-import { getRecentActivity, getMugsByCurrentFloor, getAllMugs } from "@/lib/queries";
+import { getEvents, getRecentActivity, getMugsByCurrentFloor, getAllMugs } from "@/lib/queries";
 import { Metadata } from "next";
 import AppHomeClient from "./AppHomeClient";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "MugLife — The Tower",
@@ -8,11 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default async function AppHomePage() {
-  const [activities, floorMugs, allMugs] = await Promise.all([
-    getRecentActivity(500),
+  const [events, floorMugs, allMugs] = await Promise.all([
+    getEvents(200).catch(() => []),
     getMugsByCurrentFloor(),
     getAllMugs(),
   ]);
+
+  // Use events if available, otherwise fall back to scan-based activity
+  const activities = events.length > 0 ? events : await getRecentActivity(500);
 
   return (
     <AppHomeClient

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
-import { createMug } from "@/lib/queries";
+import { createMug, logEvent } from "@/lib/queries";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -68,6 +68,8 @@ Keep responses to 2-3 sentences max. Stay in character as a coffee mug.`;
       image_url: imageUrl || undefined,
       chat_image_url: imageUrl || undefined,
     });
+
+    logEvent("mug_created", mug.id, "Someone", `Created ${name}`).catch(() => {});
 
     return NextResponse.json({ success: true, mug });
   } catch (error) {

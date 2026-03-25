@@ -69,6 +69,20 @@ export interface MugOnFloor {
   current_floor: number;
 }
 
+export type EventType = "checkin" | "rescue" | "mug_created" | "selfie" | "chat" | "message";
+
+export interface AppEvent {
+  id: number;
+  type: EventType;
+  mug_id: number | null;
+  actor: string;
+  detail: string | null;
+  created_at: string;
+  mug_name?: string;
+  mug_avatar_emoji?: string;
+  mug_image_url?: string | null;
+}
+
 export interface LeaderboardEntry {
   floor: number;
   mugs_hoarded: number;

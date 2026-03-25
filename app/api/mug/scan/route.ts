@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logScan, getMugById } from "@/lib/queries";
+import { logScan, getMugById, logEvent } from "@/lib/queries";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
       scanner_name || "Anonymous",
       is_rescue || false
     );
+
+    // Log event
+    logEvent(
+      is_rescue ? "rescue" : "checkin",
+      mug_id,
+      scanner_name || "Anonymous",
+      `Floor ${floor}`
+    ).catch(() => {});
 
     return NextResponse.json({ success: true, scan });
   } catch (error) {

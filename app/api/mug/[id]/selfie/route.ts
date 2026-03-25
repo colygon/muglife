@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { saveSelfie, getMugById } from "@/lib/queries";
+import { saveSelfie, getMugById, logEvent } from "@/lib/queries";
 
 export async function POST(
   request: NextRequest,
@@ -33,6 +33,8 @@ export async function POST(
 
     // Save to database
     const selfie = await saveSelfie(mugId, blob.url, author);
+
+    logEvent("selfie", mugId, author, "Took a selfie").catch(() => {});
 
     return NextResponse.json({ success: true, selfie });
   } catch (error) {

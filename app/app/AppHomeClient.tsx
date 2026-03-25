@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ActivityEntry, MugOnFloor, Mug } from "@/lib/types";
+import { ActivityEntry, AppEvent, MugOnFloor, Mug } from "@/lib/types";
 import ActivityFeed from "@/components/ActivityFeed";
 import TowerView from "@/components/TowerView";
 import MugDirectory from "@/components/MugDirectory";
@@ -10,7 +10,7 @@ import MugDirectory from "@/components/MugDirectory";
 type Tab = "feed" | "tower" | "mugs";
 
 interface Props {
-  activities: ActivityEntry[];
+  activities: (AppEvent | ActivityEntry)[];
   floorMugs: MugOnFloor[];
   allMugs: (Mug & { current_floor: number | null; total_scans: number })[];
 }

@@ -1,5 +1,5 @@
 import { sql, ensureSchema } from "./db";
-import type { Mug, MugProfile, Scan, MugMessage, Selfie, ActivityEntry, MugOnFloor } from "./types";
+import type { Mug, MugProfile, Scan, MugMessage, Selfie, ActivityEntry, MugOnFloor, EventType, AppEvent } from "./types";
 
 export async function getMugById(id: number): Promise<Mug | null> {
   await ensureSchema();
@@ -117,6 +117,31 @@ export async function getMugsByCurrentFloor(): Promise<MugOnFloor[]> {
     ORDER BY m.id, s.created_at DESC
   `;
   return rows as MugOnFloor[];
+}
+
+export async function logEvent(
+  type: EventType,
+  mugId: number | null,
+  actor: string = "Anonymous",
+  detail: string | null = null
+): Promise<void> {
+  await ensureSchema();
+  await sql`
+    INSERT INTO events (type, mug_id, actor, detail)
+    VALUES (${type}, ${mugId}, ${actor}, ${detail})
+  `;
+}
+
+export async function getEvents(limit: number = 100): Promise<AppEvent[]> {
+  await ensureSchema();
+  const rows = await sql`
+    SELECT e.*, m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url
+    FROM events e
+    LEFT JOIN mugs m ON m.id = e.mug_id
+    ORDER BY e.created_at DESC
+    LIMIT ${limit}
+  `;
+  return rows as AppEvent[];
 }
 
 export async function saveSelfie(

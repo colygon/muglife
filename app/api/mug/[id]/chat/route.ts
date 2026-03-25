@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMugProfile } from "@/lib/queries";
+import { getMugProfile, logEvent } from "@/lib/queries";
 import { chatWithMug } from "@/lib/claude";
 
 export async function POST(
@@ -28,6 +28,11 @@ export async function POST(
     }
 
     const response = await chatWithMug(profile, message, history);
+
+    // Log first message only (not every back-and-forth)
+    if (history.length === 0) {
+      logEvent("chat", mugId, "Someone", `Started chatting`).catch(() => {});
+    }
 
     return NextResponse.json({ response });
   } catch (error) {

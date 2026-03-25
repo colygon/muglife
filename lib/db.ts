@@ -53,10 +53,22 @@ export async function ensureSchema() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS events (
+      id SERIAL PRIMARY KEY,
+      type TEXT NOT NULL,
+      mug_id INT REFERENCES mugs(id),
+      actor TEXT DEFAULT 'Anonymous',
+      detail TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
   // Indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_scans_mug_id ON scans(mug_id)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_scans_created_at ON scans(created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_mug_messages_mug_id ON mug_messages(mug_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_selfies_mug_id ON selfies(mug_id)`;
 
   schemaReady = true;
