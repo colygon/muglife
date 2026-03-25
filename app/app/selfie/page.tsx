@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mug } from "@/lib/types";
+import { FLOORS, getFloorLabel } from "@/lib/floors";
 
 export default function SelfiePage() {
   return (
@@ -21,6 +22,7 @@ function SelfiePageInner() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [mugs, setMugs] = useState<(Mug & { current_floor: number | null })[]>([]);
   const [selectedMug, setSelectedMug] = useState<Mug | null>(null);
+  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [captured, setCaptured] = useState<string | null>(null);
   const [mugifying, setMugifying] = useState(false);
   const [mugifiedImage, setMugifiedImage] = useState<string | null>(null);
@@ -32,17 +34,27 @@ function SelfiePageInner() {
       .then((r) => r.json())
       .then((data) => {
         setMugs(data);
-        if (data.length > 0) {
-          // Pre-select from URL param, or pick random
-          const preselected = preselectedMugId
-            ? data.find((m: Mug) => m.id === parseInt(preselectedMugId))
-            : null;
-          setSelectedMug(preselected || data[Math.floor(Math.random() * data.length)]);
+        if (preselectedMugId) {
+          const preselected = data.find((m: Mug) => m.id === parseInt(preselectedMugId));
+          if (preselected) {
+            setSelectedMug(preselected);
+            setSelectedFloor(preselected.current_floor ?? preselected.home_floor);
+          }
         }
       })
       .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preselectedMugId]);
+
+  // When floor changes, pick a mug on that floor
+  function selectFloor(floor: number) {
+    setSelectedFloor(floor);
+    // Prefer a mug currently checked in to this floor, fallback to home floor
+    const onFloor = mugs.filter((m) => m.current_floor === floor);
+    const homesHere = mugs.filter((m) => m.home_floor === floor);
+    const candidate = onFloor[0] || homesHere[0] || mugs[Math.floor(Math.random() * mugs.length)];
+    setSelectedMug(candidate || null);
+  }
 
   // Start camera
   useEffect(() => {
@@ -214,39 +226,29 @@ function SelfiePageInner() {
         <div className="w-12" />
       </div>
 
-      {/* Mug selector */}
-      {!captured && mugs.length > 0 && (
+      {/* Floor selector */}
+      {!captured && (
         <div className="px-4 py-2 bg-black/80 flex-shrink-0">
-          <p className="text-xs text-white/40 mb-2">Pick a mug:</p>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {mugs.map((mug) => (
+          <div className="flex items-center gap-2 mb-2">
+            <p className="text-xs text-white/40">What floor are you on?</p>
+            {selectedMug && (
+              <span className="text-xs text-amber-400">
+                with {selectedMug.name}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+            {FLOORS.map((floor) => (
               <button
-                key={mug.id}
-                onClick={() => setSelectedMug(mug)}
-                className={`flex flex-col items-center gap-1 flex-shrink-0 w-16 transition-all active:scale-90 ${
-                  selectedMug?.id === mug.id ? "opacity-100" : "opacity-50"
+                key={floor.number}
+                onClick={() => selectFloor(floor.number)}
+                className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
+                  selectedFloor === floor.number
+                    ? "bg-amber-500 text-black"
+                    : "bg-white/10 text-white/50"
                 }`}
               >
-                <div
-                  className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-colors ${
-                    selectedMug?.id === mug.id
-                      ? "border-amber-500"
-                      : "border-transparent"
-                  }`}
-                >
-                  {mug.image_url ? (
-                    <img src={mug.image_url} alt={mug.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-white/10 flex items-center justify-center text-2xl">
-                      {mug.avatar_emoji}
-                    </div>
-                  )}
-                </div>
-                <span className={`text-[10px] truncate w-full text-center ${
-                  selectedMug?.id === mug.id ? "text-amber-400 font-bold" : "text-white/50"
-                }`}>
-                  {mug.name}
-                </span>
+                {getFloorLabel(floor.number)}
               </button>
             ))}
           </div>
@@ -303,7 +305,7 @@ function SelfiePageInner() {
           <div className="flex items-center justify-center">
             <button
               onClick={capturePhoto}
-              disabled={!stream || !selectedMug}
+              disabled={!stream || !selectedMug || selectedFloor === null}
               className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform disabled:opacity-30"
             >
               <div className="w-16 h-16 rounded-full bg-white" />
