@@ -308,10 +308,17 @@ export default function MugProfileClient({ initialProfile }: Props) {
           </Link>
           <Link
             href="/app"
-            className="flex flex-col items-center gap-0.5 py-1 px-4 text-white/30 active:scale-95"
+            className="flex flex-col items-center gap-0.5 py-1 px-3 text-white/30 active:scale-95"
           >
             <span className="text-lg">☕</span>
             <span className="text-[10px] font-medium">Mugs</span>
+          </Link>
+          <Link
+            href="/app/selfie"
+            className="flex flex-col items-center gap-0.5 py-1 px-3 text-pink-400 active:scale-95"
+          >
+            <span className="text-lg">📸</span>
+            <span className="text-[10px] font-medium">Selfie</span>
           </Link>
         </div>
       </div>

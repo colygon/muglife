@@ -91,7 +91,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
                 setActiveTab(tab.id);
                 window.scrollTo(0, 0);
               }}
-              className={`flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-colors active:scale-95 ${
+              className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors active:scale-95 ${
                 activeTab === tab.id
                   ? "text-amber-400"
                   : "text-white/30"
@@ -101,6 +101,13 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
+          <Link
+            href="/app/selfie"
+            className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-pink-400 active:scale-95"
+          >
+            <span className="text-xl">📸</span>
+            <span className="text-[10px] font-medium">Selfie</span>
+          </Link>
         </div>
       </div>
     </div>
