@@ -31,24 +31,26 @@ export async function POST(
 
     // Build the mugify prompt
     const mugDescription = mug.personality_prompt.split("\n")[0];
-    const prompt = `Edit this selfie photo. Find the coffee mug, cup, or drinking vessel the person is holding and replace ONLY that object with a kawaii cartoon mug character.
+    const prompt = `Transform this entire photo into a Studio Ghibli / Hayao Miyazaki anime illustration style.
 
-The cartoon mug character should look like: ${mugDescription}
+The person in the photo should be drawn as a Ghibli-style anime character:
+- Keep their exact facial features, hair style, glasses, and expression recognizable
+- Render them in the warm, soft, hand-painted Ghibli aesthetic
+- Soft lighting, dreamy atmosphere, watercolor-like textures
 
-Style requirements for the mug character:
-- Kawaii ceramic mug with cute dot eyes in the lower third of its body
-- Small mouth, pink blush ovals on cheeks
-- Thin black noodle arms and legs (1930s rubber-hose animation style)
-- Satin-matte glaze finish
-- Storybook illustration style (Adventure Time meets Animal Crossing)
+The mug or cup they are holding (or nearby) should become a kawaii cartoon mug character:
+- ${mugDescription}
+- Cute dot eyes, small mouth, pink blush cheeks, tiny noodle arms and legs
+- The mug character should look alive and expressive
 
-CRITICAL RULES:
-- Do NOT change the person's face, skin tone, hair, expression, or body
-- Do NOT change the background or lighting
-- ONLY replace the mug/cup with the cartoon mug character
-- Keep the cartoon mug roughly the same size and position as the original
-- The person should look like they're holding the cartoon character
-- Make it look fun and shareable!`;
+The background should also be transformed into a cozy Ghibli-style scene — warm colors, soft details, perhaps a hint of magic in the air.
+
+IMPORTANT:
+- The person must still be clearly recognizable (same face shape, features, hair, glasses)
+- The overall composition and pose should match the original photo
+- Make it look like a frame from a Ghibli film — magical, warm, and beautiful
+- This should be shareable and make people go "wow!"`;
+
 
     const response = await genai.models.generateContent({
       model: "gemini-2.5-flash-image",
