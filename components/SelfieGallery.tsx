@@ -12,6 +12,24 @@ interface Props {
   onSelfieAdded: () => void;
 }
 
+// Flip an image file horizontally (for front camera selfies)
+function flipImageHorizontally(file: File): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.85);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export default function SelfieGallery({
   selfies,
   mugId,
@@ -57,11 +75,12 @@ export default function SelfieGallery({
       }
       setUploading(false);
 
-      // Mugify the selfie with AI
+      // Mugify the selfie with AI (flip for front camera)
       setMugifying(true);
       try {
+        const flippedBlob = await flipImageHorizontally(file);
         const mugifyData = new FormData();
-        mugifyData.append("image", file);
+        mugifyData.append("image", flippedBlob, "selfie.jpg");
         const mugifyRes = await fetch(`/api/mug/${mugId}/mugify`, {
           method: "POST",
           body: mugifyData,
