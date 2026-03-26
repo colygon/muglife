@@ -47,10 +47,13 @@ The person in the photo should be drawn as a Ghibli-style anime character:
 - Render them in the warm, soft, hand-painted Ghibli aesthetic with LoFi Girl chill vibes
 - Soft golden-hour lighting, cozy atmosphere, gentle color palette
 
-The mug or cup they are holding (or nearby) should become a kawaii cartoon mug character:
+The person MUST be holding a kawaii cartoon mug character in their hand:
 - ${mugDescription}
 - Cute dot eyes, small mouth, pink blush cheeks, tiny noodle arms and legs
 - The mug character should look alive, cozy, and expressive — maybe with little steam wisps
+- The person's hand should be visibly wrapped around or holding the mug character
+- If no mug is visible in the original photo, ADD one being held in the person's hand
+- The mug should be a prominent, clearly visible element in the image
 
 The background should match "${floorName}" — ${backgroundPrompt}
 
