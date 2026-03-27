@@ -226,56 +226,10 @@ function SelfiePageInner() {
         <div className="w-12" />
       </div>
 
-      {/* Floor selector */}
-      {!captured && (
-        <div className="px-4 py-2 bg-black/80 flex-shrink-0">
-          <div className="flex items-center gap-2 mb-2">
-            <p className="text-xs text-white/40">What floor are you on?</p>
-            {selectedMug && (
-              <span className="text-xs text-amber-400">
-                with {selectedMug.name}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {/* Top row: B through 8 */}
-            <div className="flex gap-1.5 justify-center">
-              {FLOORS.filter((f) => f.number <= 8).map((floor) => (
-                <button
-                  key={floor.number}
-                  onClick={() => selectFloor(floor.number)}
-                  className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
-                    selectedFloor === floor.number
-                      ? "bg-amber-500 text-black"
-                      : "bg-white/10 text-white/50"
-                  }`}
-                >
-                  {getFloorLabel(floor.number)}
-                </button>
-              ))}
-            </div>
-            {/* Bottom row: 9 through R */}
-            <div className="flex gap-1.5 justify-center">
-              {FLOORS.filter((f) => f.number >= 9).map((floor) => (
-                <button
-                  key={floor.number}
-                  onClick={() => selectFloor(floor.number)}
-                  className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
-                    selectedFloor === floor.number
-                      ? "bg-amber-500 text-black"
-                      : "bg-white/10 text-white/50"
-                  }`}
-                >
-                  {getFloorLabel(floor.number)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Camera / Result */}
-      <div className="flex-1 min-h-0 relative flex items-center justify-center bg-black overflow-hidden">
+      {/* Camera / Result with vertical floor selector */}
+      <div className="flex-1 min-h-0 relative flex bg-black overflow-hidden">
+        {/* Main camera/result area */}
+        <div className="flex-1 relative flex items-center justify-center">
         {!captured ? (
           <>
             <video
@@ -314,6 +268,31 @@ function SelfiePageInner() {
             </div>
           </div>
         ) : null}
+        </div>
+
+        {/* Vertical floor selector — right side */}
+        {!captured && (
+          <div className="flex flex-col items-center justify-center gap-0.5 px-1 bg-black/60 overflow-y-auto py-1">
+            {selectedMug && (
+              <span className="text-[9px] text-amber-400 mb-1 truncate max-w-[32px]">
+                {selectedMug.name}
+              </span>
+            )}
+            {[...FLOORS].reverse().map((floor) => (
+              <button
+                key={floor.number}
+                onClick={() => selectFloor(floor.number)}
+                className={`flex-shrink-0 w-8 h-7 rounded text-xs font-bold transition-all active:scale-90 ${
+                  selectedFloor === floor.number
+                    ? "bg-amber-500 text-black"
+                    : "bg-white/10 text-white/40"
+                }`}
+              >
+                {getFloorLabel(floor.number)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
