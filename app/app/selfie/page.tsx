@@ -39,6 +39,7 @@ function SelfiePageInner() {
           if (preselected) {
             setSelectedMug(preselected);
             setSelectedFloor(preselected.current_floor ?? preselected.home_floor);
+            setMugLocked(true);
           }
         }
       })
@@ -46,14 +47,31 @@ function SelfiePageInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preselectedMugId]);
 
-  // When floor changes, pick a mug on that floor
+  const [mugLocked, setMugLocked] = useState(false); // true when coming from a mug profile
+
+  // When floor changes, pick a mug on that floor (only if mug not locked)
   function selectFloor(floor: number) {
     setSelectedFloor(floor);
-    // Prefer a mug currently checked in to this floor, fallback to home floor
-    const onFloor = mugs.filter((m) => m.current_floor === floor);
-    const homesHere = mugs.filter((m) => m.home_floor === floor);
-    const candidate = onFloor[0] || homesHere[0] || mugs[Math.floor(Math.random() * mugs.length)];
-    setSelectedMug(candidate || null);
+    if (!mugLocked) {
+      const homesHere = mugs.filter((m) => m.home_floor === floor);
+      const onFloor = mugs.filter((m) => m.current_floor === floor);
+      const candidate = homesHere[0] || onFloor[0] || null;
+      setSelectedMug(candidate);
+    }
+  }
+
+  // Mugs available for the selected floor
+  const floorMugs = selectedFloor !== null
+    ? mugs.filter((m) => m.home_floor === selectedFloor || m.current_floor === selectedFloor)
+    : [];
+
+  function unlockMug() {
+    setMugLocked(false);
+    // Re-pick from current floor
+    if (selectedFloor !== null) {
+      const homesHere = mugs.filter((m) => m.home_floor === selectedFloor);
+      setSelectedMug(homesHere[0] || null);
+    }
   }
 
   // Start camera
@@ -225,6 +243,58 @@ function SelfiePageInner() {
         <span className="text-amber-400 font-bold">MugLife Selfie</span>
         <div className="w-12" />
       </div>
+
+      {/* Mug selector strip */}
+      {!captured && selectedFloor !== null && (
+        <div className="bg-black/80 px-3 py-1.5 flex-shrink-0 border-t border-white/5">
+          {mugLocked && selectedMug ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1">
+                {selectedMug.image_url ? (
+                  <img src={selectedMug.image_url} alt={selectedMug.name} className="w-6 h-6 rounded-full object-cover" />
+                ) : (
+                  <span className="text-sm">{selectedMug.avatar_emoji}</span>
+                )}
+                <span className="text-amber-400 text-sm font-medium">{selectedMug.name}</span>
+                <button
+                  onClick={unlockMug}
+                  className="text-white/40 hover:text-white/80 ml-1"
+                  title="Change mug"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {floorMugs.length > 0 ? (
+                floorMugs.map((mug) => (
+                  <button
+                    key={mug.id}
+                    onClick={() => setSelectedMug(mug)}
+                    className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-all active:scale-95 ${
+                      selectedMug?.id === mug.id
+                        ? "bg-amber-500/20 border border-amber-500/40 text-amber-300"
+                        : "bg-white/5 border border-white/10 text-white/50"
+                    }`}
+                  >
+                    {mug.image_url ? (
+                      <img src={mug.image_url} alt={mug.name} className="w-5 h-5 rounded-full object-cover" />
+                    ) : (
+                      <span>{mug.avatar_emoji}</span>
+                    )}
+                    {mug.name}
+                  </button>
+                ))
+              ) : (
+                <p className="text-white/30 text-xs">Select a floor to see mugs</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Camera / Result with vertical floor selector */}
       <div className="flex-1 min-h-0 relative flex bg-black overflow-hidden">
