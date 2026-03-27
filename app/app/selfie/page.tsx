@@ -272,17 +272,12 @@ function SelfiePageInner() {
 
         {/* Vertical floor selector — right side */}
         {!captured && (
-          <div className="flex flex-col items-center justify-center gap-0.5 px-1 bg-black/60 overflow-y-auto py-1">
-            {selectedMug && (
-              <span className="text-[9px] text-amber-400 mb-1 truncate max-w-[32px]">
-                {selectedMug.name}
-              </span>
-            )}
+          <div className="flex flex-col items-center justify-between gap-px px-0.5 bg-black/60 py-1 h-full">
             {[...FLOORS].reverse().map((floor) => (
               <button
                 key={floor.number}
                 onClick={() => selectFloor(floor.number)}
-                className={`flex-shrink-0 w-8 h-7 rounded text-xs font-bold transition-all active:scale-90 ${
+                className={`flex-shrink-1 w-7 min-h-[24px] flex-1 rounded text-[11px] font-bold transition-all active:scale-90 ${
                   selectedFloor === floor.number
                     ? "bg-amber-500 text-black"
                     : "bg-white/10 text-white/40"
