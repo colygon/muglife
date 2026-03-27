@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mug } from "@/lib/types";
 import { FLOORS, getFloorLabel } from "@/lib/floors";
@@ -16,6 +16,7 @@ export default function SelfiePage() {
 
 function SelfiePageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const preselectedMugId = searchParams.get("mug");
   const preselectedFloor = searchParams.get("floor");
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -197,21 +198,17 @@ function SelfiePageInner() {
       const fd = new FormData();
       fd.append("image", blob, "mugified-selfie.png");
       fd.append("author", localStorage.getItem("muglife-name") || "Anonymous");
-      await fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
+      const uploadRes = await fetch(`/api/mug/${selectedMug.id}/selfie`, { method: "POST", body: fd });
 
-      // Also download to device
-      const link = document.createElement("a");
-      link.download = `muglife-${selectedMug.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}.png`;
-      link.href = mugifiedImage;
-      link.click();
-
-      setSaved(true);
+      if (uploadRes.ok) {
+        setSaved(true);
+        // Navigate back to the mug profile so they can see the selfie
+        setTimeout(() => {
+          router.push(`/mug/${selectedMug.id}`);
+        }, 500);
+      }
     } catch {
-      // Still download even if upload fails
-      const link = document.createElement("a");
-      link.download = `muglife-selfie-${Date.now()}.png`;
-      link.href = mugifiedImage;
-      link.click();
+      // ignore
     }
     setSaving(false);
   }

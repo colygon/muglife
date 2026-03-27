@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import MugProfileClient from "./MugProfileClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface Props {
   params: { id: string };
 }
