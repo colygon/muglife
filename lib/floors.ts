@@ -110,6 +110,13 @@ export const FLOORS: FloorInfo[] = [
     description:
       "The accelerationist lounge for cross-pollination. The top floor for all communities to mingle and bring humanity forward.",
   },
+  {
+    number: 17,
+    name: "Rooftop",
+    shortName: "Rooftop",
+    description:
+      "Stunning panoramic views of the San Francisco skyline. The ultimate spot for golden hour drinks, sunrise yoga, and feeling on top of the world.",
+  },
 ];
 
 // Simple array of floor numbers for the floor picker
@@ -125,5 +132,13 @@ export function getFloorName(floor: number): string {
 }
 
 export function getFloorLabel(floor: number): string {
-  return floor === -1 ? "B" : String(floor);
+  if (floor === -1) return "B";
+  if (floor === 17) return "R";
+  return String(floor);
+}
+
+export function getFloorDisplayName(floor: number): string {
+  if (floor === -1) return "Basement";
+  if (floor === 17) return "Rooftop";
+  return `Floor ${floor}`;
 }

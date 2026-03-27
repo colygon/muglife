@@ -132,6 +132,7 @@ function getBackgroundForFloor(floorNumber: number, floorName: string, floorDesc
     14: "A human flourishing space — learning circles, philosophy books, regenerative garden visible through windows, warm community gathering space. Thoughtful, intentional, beautiful.",
     15: "A quiet coworking space — clean desks, noise-cancelling headphones, focused people typing, minimal decoration, soft task lighting. Productive calm.",
     16: "A luxurious rooftop lounge — panoramic city skyline view through floor-to-ceiling windows, comfortable couches, ambient lighting, cocktail glasses. Cross-pollination conversations. Top of the world feeling.",
+    17: "A stunning San Francisco rooftop at golden hour — panoramic skyline with the Transamerica Pyramid, Salesforce Tower, Bay Bridge, and city lights twinkling. Open sky, string lights overhead, urban garden vibes. Wind in hair, breathtaking 360-degree views of the city below. Magical rooftop sunset energy.",
   };
 
   return backgrounds[floorNumber] || `A scene inspired by ${floorName}: ${floorDesc}. Cozy LoFi Girl vibes with warm amber tones.`;

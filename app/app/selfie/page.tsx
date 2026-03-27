@@ -237,20 +237,39 @@ function SelfiePageInner() {
               </span>
             )}
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {FLOORS.map((floor) => (
-              <button
-                key={floor.number}
-                onClick={() => selectFloor(floor.number)}
-                className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
-                  selectedFloor === floor.number
-                    ? "bg-amber-500 text-black"
-                    : "bg-white/10 text-white/50"
-                }`}
-              >
-                {getFloorLabel(floor.number)}
-              </button>
-            ))}
+          <div className="flex flex-col gap-1.5">
+            {/* Top row: B through 7 */}
+            <div className="flex gap-1.5 justify-center">
+              {FLOORS.filter((f) => f.number <= 7).map((floor) => (
+                <button
+                  key={floor.number}
+                  onClick={() => selectFloor(floor.number)}
+                  className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
+                    selectedFloor === floor.number
+                      ? "bg-amber-500 text-black"
+                      : "bg-white/10 text-white/50"
+                  }`}
+                >
+                  {getFloorLabel(floor.number)}
+                </button>
+              ))}
+            </div>
+            {/* Bottom row: 8 through R */}
+            <div className="flex gap-1.5 justify-center">
+              {FLOORS.filter((f) => f.number >= 8).map((floor) => (
+                <button
+                  key={floor.number}
+                  onClick={() => selectFloor(floor.number)}
+                  className={`flex-shrink-0 w-10 h-10 rounded-lg font-bold text-sm transition-all active:scale-90 ${
+                    selectedFloor === floor.number
+                      ? "bg-amber-500 text-black"
+                      : "bg-white/10 text-white/50"
+                  }`}
+                >
+                  {getFloorLabel(floor.number)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
