@@ -43,7 +43,8 @@ export async function POST(
     const prompt = `Transform this entire photo into a Studio Ghibli / LoFi Girl anime illustration style.
 
 The person in the photo should be drawn as a Ghibli-style anime character:
-- Keep their exact facial features, hair style, glasses, and expression recognizable
+- Keep their exact facial features, hair style, and expression recognizable
+- ONLY draw glasses if the person is clearly wearing glasses in the original photo — do NOT add glasses to people who aren't wearing them
 - Render them in the warm, soft, hand-painted Ghibli aesthetic with LoFi Girl chill vibes
 - Soft golden-hour lighting, cozy atmosphere, gentle color palette
 
@@ -58,7 +59,8 @@ The person MUST be holding a kawaii cartoon mug character in their hand:
 The background should match "${floorName}" — ${backgroundPrompt}
 
 IMPORTANT:
-- The person must still be clearly recognizable (same face shape, features, hair, glasses)
+- The person must still be clearly recognizable (same face shape, features, hair)
+- Do NOT add glasses or accessories that aren't in the original photo
 - The overall composition and pose should match the original photo
 - Blend Ghibli's hand-painted warmth with LoFi Girl's cozy, chill aesthetic
 - The background MUST reflect the ${floorName} vibe

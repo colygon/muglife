@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MugProfile } from "@/lib/types";
 import TravelTimeline from "@/components/TravelTimeline";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function MugProfileClient({ initialProfile }: Props) {
+  const router = useRouter();
   const [profile, setProfile] = useState<MugProfile>(initialProfile);
   const [showFloorPicker, setShowFloorPicker] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -53,17 +55,8 @@ export default function MugProfileClient({ initialProfile }: Props) {
 
     setShowFloorPicker(false);
 
-    if (isRescue) {
-      setCheckInMessage(
-        `You brought ${profile.name} home! 🎉 +10 rescue points!`
-      );
-    } else {
-      setCheckInMessage(
-        `Checked in on Floor ${floor}. ${profile.name} says thanks for the visit.`
-      );
-    }
-
-    setTimeout(() => setCheckInMessage(null), 4000);
+    // Redirect to selfie with mug and floor pre-selected
+    router.push(`/app/selfie?mug=${profile.id}&floor=${floor}`);
   }
 
   return (

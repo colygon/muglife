@@ -24,16 +24,12 @@ export default function FloorPicker({
     return "";
   });
   const [submitting, setSubmitting] = useState(false);
-  const [showNameInput, setShowNameInput] = useState(false);
+
+  // Show name input alongside floor picker, not as a replacement
+  const needsName = typeof window !== "undefined" && !localStorage.getItem("muglife-name");
 
   async function handleCheckIn() {
-    if (!selectedFloor) return;
-
-    // If no name saved, ask for it
-    if (!name.trim()) {
-      setShowNameInput(true);
-      return;
-    }
+    if (!selectedFloor || !name.trim()) return;
 
     setSubmitting(true);
     try {
@@ -48,73 +44,59 @@ export default function FloorPicker({
 
   return (
     <div className="space-y-4">
-      {showNameInput && !name.trim() ? (
-        <div className="space-y-3">
-          <label className="block text-sm text-amber-200/80">
-            What&apos;s your name?
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            autoFocus
-            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 text-base"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && name.trim()) handleCheckIn();
-            }}
-          />
-          <button
-            onClick={handleCheckIn}
-            disabled={!name.trim()}
-            className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors disabled:opacity-50"
-          >
-            Check In
-          </button>
-        </div>
-      ) : (
-        <>
-          <p className="text-sm text-white/50 text-center">
-            Where is this mug right now?
-          </p>
+      <p className="text-sm text-white/50 text-center">
+        Where is this mug right now?
+      </p>
 
-          {/* Floor grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            {TOWER_FLOORS.map((floor) => (
-              <button
-                key={floor}
-                onClick={() => setSelectedFloor(floor)}
-                className={`h-12 rounded-lg font-medium text-sm transition-all active:scale-95 ${
-                  selectedFloor === floor
-                    ? "bg-amber-500 text-black"
-                    : floor === homeFloor
-                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:border-white/20"
-                }`}
-              >
-                {floor === -1 ? "B" : floor}
-                {floor === homeFloor && selectedFloor !== floor && (
-                  <span className="block text-[10px] -mt-0.5 opacity-60">
-                    home
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
+      {/* Floor grid */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+        {TOWER_FLOORS.map((floor) => (
           <button
-            onClick={handleCheckIn}
-            disabled={!selectedFloor || submitting}
-            className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors disabled:opacity-50 active:scale-[0.97]"
+            key={floor}
+            onClick={() => setSelectedFloor(floor)}
+            className={`h-12 rounded-lg font-medium text-sm transition-all active:scale-95 ${
+              selectedFloor === floor
+                ? "bg-amber-500 text-black"
+                : floor === homeFloor
+                ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                : "bg-white/5 text-white/60 border border-white/10 hover:border-white/20"
+            }`}
           >
-            {submitting
-              ? "Checking in..."
-              : selectedFloor
-              ? `Check in on Floor ${selectedFloor === -1 ? "B" : selectedFloor}`
-              : "Select a floor"}
+            {floor === -1 ? "B" : floor}
+            {floor === homeFloor && selectedFloor !== floor && (
+              <span className="block text-[10px] -mt-0.5 opacity-60">
+                home
+              </span>
+            )}
           </button>
-        </>
+        ))}
+      </div>
+
+      {/* Name input — always visible if no saved name */}
+      {needsName && (
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name"
+          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 text-base"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && name.trim() && selectedFloor) handleCheckIn();
+          }}
+        />
       )}
+
+      <button
+        onClick={handleCheckIn}
+        disabled={!selectedFloor || !name.trim() || submitting}
+        className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold transition-colors disabled:opacity-50 active:scale-[0.97]"
+      >
+        {submitting
+          ? "Checking in..."
+          : selectedFloor
+          ? `Check in on Floor ${selectedFloor === -1 ? "B" : selectedFloor}`
+          : "Select a floor"}
+      </button>
     </div>
   );
 }

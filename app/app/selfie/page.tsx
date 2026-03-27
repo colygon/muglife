@@ -17,6 +17,7 @@ export default function SelfiePage() {
 function SelfiePageInner() {
   const searchParams = useSearchParams();
   const preselectedMugId = searchParams.get("mug");
+  const preselectedFloor = searchParams.get("floor");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -38,9 +39,16 @@ function SelfiePageInner() {
           const preselected = data.find((m: Mug) => m.id === parseInt(preselectedMugId));
           if (preselected) {
             setSelectedMug(preselected);
-            setSelectedFloor(preselected.current_floor ?? preselected.home_floor);
+            setSelectedFloor(
+              preselectedFloor ? parseInt(preselectedFloor) : (preselected.current_floor ?? preselected.home_floor)
+            );
             setMugLocked(true);
           }
+        } else if (preselectedFloor) {
+          const floor = parseInt(preselectedFloor);
+          setSelectedFloor(floor);
+          const homesHere = data.filter((m: Mug) => m.home_floor === floor);
+          if (homesHere[0]) setSelectedMug(homesHere[0]);
         }
       })
       .catch(() => {});
@@ -342,12 +350,12 @@ function SelfiePageInner() {
 
         {/* Vertical floor selector — right side */}
         {!captured && (
-          <div className="flex flex-col items-center justify-between gap-px px-0.5 bg-black/60 py-1 h-full">
+          <div className="flex flex-col items-center justify-between gap-px px-1 bg-black/60 py-1 h-full">
             {[...FLOORS].reverse().map((floor) => (
               <button
                 key={floor.number}
                 onClick={() => selectFloor(floor.number)}
-                className={`flex-shrink-1 w-7 min-h-[24px] flex-1 rounded text-[11px] font-bold transition-all active:scale-90 ${
+                className={`flex-shrink-1 w-10 min-h-[28px] flex-1 rounded text-xs font-bold transition-all active:scale-90 ${
                   selectedFloor === floor.number
                     ? "bg-amber-500 text-black"
                     : "bg-white/10 text-white/40"

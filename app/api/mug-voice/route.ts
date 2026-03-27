@@ -50,8 +50,17 @@ export async function GET(request: NextRequest) {
   try {
     const existing = await head(blobKey);
     if (existing) {
-      // Redirect to the cached blob URL
-      return NextResponse.redirect(existing.url);
+      // Proxy the cached audio instead of redirecting (avoids CORS issues)
+      const cachedRes = await fetch(existing.url);
+      if (cachedRes.ok) {
+        const audioBuffer = await cachedRes.arrayBuffer();
+        return new NextResponse(audioBuffer, {
+          headers: {
+            "Content-Type": "audio/mpeg",
+            "Cache-Control": "public, max-age=86400",
+          },
+        });
+      }
     }
   } catch {
     // Blob not found, generate it
