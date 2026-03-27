@@ -238,9 +238,9 @@ function SelfiePageInner() {
             )}
           </div>
           <div className="flex flex-col gap-1.5">
-            {/* Top row: B through 7 */}
+            {/* Top row: B through 8 */}
             <div className="flex gap-1.5 justify-center">
-              {FLOORS.filter((f) => f.number <= 7).map((floor) => (
+              {FLOORS.filter((f) => f.number <= 8).map((floor) => (
                 <button
                   key={floor.number}
                   onClick={() => selectFloor(floor.number)}
@@ -254,9 +254,9 @@ function SelfiePageInner() {
                 </button>
               ))}
             </div>
-            {/* Bottom row: 8 through R */}
+            {/* Bottom row: 9 through R */}
             <div className="flex gap-1.5 justify-center">
-              {FLOORS.filter((f) => f.number >= 8).map((floor) => (
+              {FLOORS.filter((f) => f.number >= 9).map((floor) => (
                 <button
                   key={floor.number}
                   onClick={() => selectFloor(floor.number)}
