@@ -6,14 +6,17 @@ import QRCode from "qrcode";
 interface Props {
   mugId: number;
   mugName: string;
+  isFloor?: boolean;
 }
 
-export default function MugQRCode({ mugId, mugName }: Props) {
+export default function MugQRCode({ mugId, mugName, isFloor }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const mugUrl = `https://muglife-alpha.vercel.app/mug/${mugId}`;
+  const mugUrl = isFloor
+    ? `https://muglife-alpha.vercel.app/floor/${mugId}`
+    : `https://muglife-alpha.vercel.app/mug/${mugId}`;
 
   useEffect(() => {
     QRCode.toDataURL(mugUrl, {

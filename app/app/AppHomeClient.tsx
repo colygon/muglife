@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ActivityEntry, AppEvent, MugOnFloor, Mug } from "@/lib/types";
 import ActivityFeed from "@/components/ActivityFeed";
 import TowerView from "@/components/TowerView";
 import MugDirectory from "@/components/MugDirectory";
+import QRScanner from "@/components/QRScanner";
 
 type Tab = "feed" | "tower" | "mugs";
 
@@ -16,7 +18,9 @@ interface Props {
 }
 
 export default function AppHomeClient({ activities: initialActivities, floorMugs: initialFloorMugs, allMugs: initialAllMugs }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("feed");
+  const [showScanner, setShowScanner] = useState(false);
   const [activities, setActivities] = useState(initialActivities);
   const [floorMugs, setFloorMugs] = useState(initialFloorMugs);
   const [allMugs, setAllMugs] = useState(initialAllMugs);
@@ -81,9 +85,43 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
         {activeTab === "mugs" && <MugDirectory mugs={allMugs} onMugCreated={refresh} />}
       </div>
 
+      {/* QR Scanner */}
+      {showScanner && (
+        <QRScanner
+          onScan={(url) => {
+            setShowScanner(false);
+            // Parse the scanned URL to navigate
+            try {
+              const parsed = new URL(url);
+              const path = parsed.pathname;
+              // Handle mug URLs: /mug/123
+              const mugMatch = path.match(/\/mug\/(\d+)/);
+              if (mugMatch) {
+                router.push(`/mug/${mugMatch[1]}`);
+                return;
+              }
+              // Handle floor URLs: /floor/9
+              const floorMatch = path.match(/\/floor\/([\d-]+)/);
+              if (floorMatch) {
+                router.push(`/floor/${floorMatch[1]}`);
+                return;
+              }
+              // If it's a muglife URL but unknown path, just navigate
+              if (parsed.hostname.includes("muglife")) {
+                router.push(path);
+                return;
+              }
+            } catch {
+              // Not a URL, ignore
+            }
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
       {/* Bottom Dock */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-lg mx-auto px-6 py-2 flex justify-around">
+        <div className="max-w-lg mx-auto px-6 py-2 flex justify-around items-end">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -101,6 +139,21 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
+
+          {/* QR Scanner — center prominent button */}
+          <button
+            onClick={() => setShowScanner(true)}
+            className="flex flex-col items-center gap-0.5 -mt-4 active:scale-95"
+          >
+            <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M3 17v2a2 2 0 002 2h2M17 21h2a2 2 0 002-2v-2" />
+                <rect x="7" y="7" width="10" height="10" rx="1" strokeLinecap="round" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-medium text-amber-400">Scan</span>
+          </button>
+
           <Link
             href="/app/selfie"
             className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-pink-400 active:scale-95"
