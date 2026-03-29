@@ -8,6 +8,7 @@ export interface Mug {
   image_url: string | null;
   chat_image_url: string | null;
   voice_id: string | null;
+  voice_intro_text: string | null;
   created_at: string;
 }
 

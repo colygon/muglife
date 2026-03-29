@@ -13,7 +13,7 @@ export interface MugRosterEntry {
   physical_description: string;
 }
 
-// ElevenLabs voice IDs
+// Voice IDs (ElevenLabs voices, used via Vapi)
 const VOICES = {
   laura: "FGY2WhTYpPnrIDTdsKH5", // Quirky female
   george: "JBFqnCBsd6RMkjVDRZzb", // Storyteller male

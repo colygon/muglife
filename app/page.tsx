@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, FormEvent } from "react";
 
 const MUGS = [
   {
@@ -42,47 +42,6 @@ export default function Home() {
   const [suggestion, setSuggestion] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [playingMug, setPlayingMug] = useState<string | null>(null);
-  const [loadingMug, setLoadingMug] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  async function playMugVoice(mugId: string) {
-    // Stop current playback
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-
-    // If clicking the same mug, just stop
-    if (playingMug === mugId) {
-      setPlayingMug(null);
-      return;
-    }
-
-    setLoadingMug(mugId);
-    try {
-      const res = await fetch(`/api/mug-voice?mug=${mugId}`);
-      if (!res.ok) throw new Error("Failed to load voice");
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-
-      audio.onended = () => {
-        setPlayingMug(null);
-        URL.revokeObjectURL(url);
-      };
-
-      audioRef.current = audio;
-      setPlayingMug(mugId);
-      setLoadingMug(null);
-      await audio.play();
-    } catch {
-      setLoadingMug(null);
-      setPlayingMug(null);
-    }
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -272,72 +231,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Voice Demo */}
+      {/* Meet the Mugs */}
       <section className="px-6 py-16 sm:px-12 sm:py-24">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3 text-amber-300">
-            Hear Your Mug
+            Meet the Mugs
           </h2>
           <p className="text-center text-white/50 mb-12">
-            Every mug has a voice. Tap one to hear its story.
+            Every mug has a personality. Scan one to start a conversation.
           </p>
           <div className="grid sm:grid-cols-3 gap-6">
             {MUGS.map((mug) => (
-              <button
+              <div
                 key={mug.id}
-                onClick={() => playMugVoice(mug.id)}
-                className={`text-left p-5 rounded-xl bg-gradient-to-br ${mug.color} border ${
-                  playingMug === mug.id
-                    ? mug.borderColor
-                    : "border-white/10"
-                } hover:${mug.borderColor} transition-all group`}
+                className={`text-left p-5 rounded-xl bg-gradient-to-br ${mug.color} border border-white/10 hover:${mug.borderColor} transition-all`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-3xl">&#9749;</span>
-                  <span
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                      playingMug === mug.id
-                        ? "bg-amber-500 text-black"
-                        : loadingMug === mug.id
-                        ? "bg-white/10 text-white/50"
-                        : "bg-white/10 text-white/50 group-hover:bg-amber-500/20 group-hover:text-amber-400"
-                    }`}
-                  >
-                    {loadingMug === mug.id ? (
-                      <svg
-                        className="w-5 h-5 animate-spin"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeDasharray="31.4 31.4"
-                        />
-                      </svg>
-                    ) : playingMug === mug.id ? (
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <rect x="6" y="5" width="4" height="14" rx="1" />
-                        <rect x="14" y="5" width="4" height="14" rx="1" />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-5 h-5 ml-0.5"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    )}
-                  </span>
                 </div>
                 <h3 className="font-semibold text-white text-lg">
                   {mug.name}
@@ -348,7 +258,7 @@ export default function Home() {
                 <p className="text-sm text-white/50 italic">
                   &ldquo;{mug.quote}&rdquo;
                 </p>
-              </button>
+              </div>
             ))}
           </div>
         </div>

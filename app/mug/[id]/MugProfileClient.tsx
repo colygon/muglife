@@ -9,7 +9,7 @@ import FloorPicker from "@/components/FloorPicker";
 import SelfieGallery from "@/components/SelfieGallery";
 import MugChat from "@/components/MugChat";
 import MugQRCode from "@/components/MugQRCode";
-import MugVoiceIntro from "@/components/MugVoiceIntro";
+import MugVoiceCall from "@/components/MugVoiceCall";
 import { getFloorName } from "@/lib/floors";
 
 interface Props {
@@ -93,9 +93,9 @@ export default function MugProfileClient({ initialProfile }: Props) {
             &ldquo;{profile.personality}&rdquo;
           </p>
 
-          {/* Voice intro */}
+          {/* Voice call */}
           <div className="mt-3">
-            <MugVoiceIntro mugId={profile.id} mugName={profile.name} />
+            <MugVoiceCall mugId={profile.id} mugName={profile.name} mugEmoji={profile.avatar_emoji} />
           </div>
 
           {/* Status badges */}
