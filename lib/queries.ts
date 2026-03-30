@@ -135,9 +135,18 @@ export async function logEvent(
 export async function getEvents(limit: number = 100): Promise<AppEvent[]> {
   await ensureSchema();
   const rows = await sql`
-    SELECT e.*, m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url
+    SELECT e.*, m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url,
+      s.image_url as selfie_image_url
     FROM events e
     LEFT JOIN mugs m ON m.id = e.mug_id
+    LEFT JOIN LATERAL (
+      SELECT image_url FROM selfies
+      WHERE selfies.mug_id = e.mug_id
+        AND selfies.created_at <= e.created_at + interval '60 seconds'
+        AND selfies.created_at >= e.created_at - interval '60 seconds'
+      ORDER BY selfies.created_at DESC
+      LIMIT 1
+    ) s ON e.type = 'selfie'
     ORDER BY e.created_at DESC
     LIMIT ${limit}
   `;

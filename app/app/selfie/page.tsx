@@ -249,58 +249,6 @@ function SelfiePageInner() {
         <div className="w-12" />
       </div>
 
-      {/* Mug selector strip */}
-      {!captured && selectedFloor !== null && (
-        <div className="bg-black/80 px-3 py-1.5 flex-shrink-0 border-t border-white/5">
-          {mugLocked && selectedMug ? (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1">
-                {selectedMug.image_url ? (
-                  <img src={selectedMug.image_url} alt={selectedMug.name} className="w-6 h-6 rounded-full object-cover" />
-                ) : (
-                  <span className="text-sm">{selectedMug.avatar_emoji}</span>
-                )}
-                <span className="text-amber-400 text-sm font-medium">{selectedMug.name}</span>
-                <button
-                  onClick={unlockMug}
-                  className="text-white/40 hover:text-white/80 ml-1"
-                  title="Change mug"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {floorMugs.length > 0 ? (
-                floorMugs.map((mug) => (
-                  <button
-                    key={mug.id}
-                    onClick={() => setSelectedMug(mug)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-all active:scale-95 ${
-                      selectedMug?.id === mug.id
-                        ? "bg-amber-500/20 border border-amber-500/40 text-amber-300"
-                        : "bg-white/5 border border-white/10 text-white/50"
-                    }`}
-                  >
-                    {mug.image_url ? (
-                      <img src={mug.image_url} alt={mug.name} className="w-5 h-5 rounded-full object-cover" />
-                    ) : (
-                      <span>{mug.avatar_emoji}</span>
-                    )}
-                    {mug.name}
-                  </button>
-                ))
-              ) : (
-                <p className="text-white/30 text-xs">Select a floor to see mugs</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Camera / Result with vertical floor selector */}
       <div className="flex-1 min-h-0 relative flex bg-black overflow-hidden">
         {/* Main camera/result area */}
@@ -345,14 +293,14 @@ function SelfiePageInner() {
         ) : null}
         </div>
 
-        {/* Vertical floor selector — right side */}
+        {/* Vertical floor selector — right side, full height over dock */}
         {!captured && (
-          <div className="flex flex-col items-center justify-between gap-px px-1 bg-black/60 py-1 h-full">
+          <div className="fixed top-0 right-0 bottom-0 z-50 flex flex-col items-center justify-between gap-px px-1 bg-black/60 py-1 w-14">
             {[...FLOORS].reverse().map((floor) => (
               <button
                 key={floor.number}
                 onClick={() => selectFloor(floor.number)}
-                className={`flex-shrink-1 w-10 min-h-[28px] flex-1 rounded text-xs font-bold transition-all active:scale-90 ${
+                className={`w-full flex-1 rounded-md text-base font-bold transition-all active:scale-90 flex items-center justify-center ${
                   selectedFloor === floor.number
                     ? "bg-amber-500 text-black"
                     : "bg-white/10 text-white/40"
@@ -368,16 +316,82 @@ function SelfiePageInner() {
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Controls */}
-      <div className="bg-black px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="bg-black px-4 py-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         {!captured ? (
-          <div className="flex items-center justify-center">
-            <button
-              onClick={capturePhoto}
-              disabled={!stream || !selectedMug || selectedFloor === null}
-              className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform disabled:opacity-30"
-            >
-              <div className="w-16 h-16 rounded-full bg-white" />
-            </button>
+          <div className="flex flex-col items-center gap-3">
+            {/* Mug selector strip */}
+            {selectedFloor !== null && (
+              <div className="w-full pr-14">
+                {mugLocked && selectedMug ? (
+                  <div className="flex items-center gap-2 justify-center">
+                    <div className="flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1">
+                      {selectedMug.image_url ? (
+                        <img src={selectedMug.image_url} alt={selectedMug.name} className="w-6 h-6 rounded-full object-cover" />
+                      ) : (
+                        <span className="text-sm">{selectedMug.avatar_emoji}</span>
+                      )}
+                      <span className="text-amber-400 text-sm font-medium">{selectedMug.name}</span>
+                      <button
+                        onClick={unlockMug}
+                        className="text-white/40 hover:text-white/80 ml-1"
+                        title="Change mug"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide justify-center">
+                    {floorMugs.length > 0 ? (
+                      floorMugs.map((mug) => (
+                        <button
+                          key={mug.id}
+                          onClick={() => setSelectedMug(mug)}
+                          className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition-all active:scale-95 ${
+                            selectedMug?.id === mug.id
+                              ? "bg-amber-500/20 border border-amber-500/40 text-amber-300"
+                              : "bg-white/5 border border-white/10 text-white/50"
+                          }`}
+                        >
+                          {mug.image_url ? (
+                            <img src={mug.image_url} alt={mug.name} className="w-5 h-5 rounded-full object-cover" />
+                          ) : (
+                            <span>{mug.avatar_emoji}</span>
+                          )}
+                          {mug.name}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-white/30 text-xs">Select a floor to see mugs</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Shutter button with selected mug avatar */}
+            <div className="relative">
+              {selectedMug && (
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+                  {selectedMug.image_url ? (
+                    <img src={selectedMug.image_url} alt={selectedMug.name} className="w-12 h-12 rounded-full object-cover border-2 border-amber-500 shadow-lg shadow-amber-500/30" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-xl shadow-lg">
+                      {selectedMug.avatar_emoji}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={capturePhoto}
+                disabled={!stream || !selectedMug || selectedFloor === null}
+                className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform disabled:opacity-30"
+              >
+                <div className="w-16 h-16 rounded-full bg-white" />
+              </button>
+            </div>
           </div>
         ) : mugifiedImage ? (
           <div className="flex gap-3">

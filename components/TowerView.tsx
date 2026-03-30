@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { MugOnFloor } from "@/lib/types";
 import { FLOORS, getFloorLabel } from "@/lib/floors";
 
@@ -86,13 +85,14 @@ export default function TowerView({ mugs }: Props) {
                           title={`${mug.name} — ${isHome ? "at home" : "away from home"}`}
                         >
                           {mug.image_url ? (
-                            <Image
+                            <img
                               src={mug.image_url}
                               alt={mug.name}
-                              width={24}
-                              height={24}
+                              width={20}
+                              height={20}
+                              loading="lazy"
+                              decoding="async"
                               className="w-5 h-5 rounded-full object-cover"
-                              unoptimized
                             />
                           ) : (
                             <span className="text-sm">{mug.avatar_emoji}</span>

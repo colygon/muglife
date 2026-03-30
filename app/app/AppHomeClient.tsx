@@ -131,11 +131,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
                 setActiveTab(tab.id);
                 window.scrollTo(0, 0);
               }}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors active:scale-95 ${
-                activeTab === tab.id
-                  ? "text-amber-400"
-                  : "text-white/30"
-              }`}
+              className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors active:scale-95 text-amber-400"
             >
               <span className="text-2xl">{tab.icon}</span>
               <span className="text-xs font-medium">{tab.label}</span>
@@ -163,11 +159,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
                 setActiveTab(tab.id);
                 window.scrollTo(0, 0);
               }}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors active:scale-95 ${
-                activeTab === tab.id
-                  ? "text-amber-400"
-                  : "text-white/30"
-              }`}
+              className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors active:scale-95 text-amber-400"
             >
               <span className="text-2xl">{tab.icon}</span>
               <span className="text-xs font-medium">{tab.label}</span>

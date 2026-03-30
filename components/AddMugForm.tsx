@@ -126,7 +126,7 @@ export default function AddMugForm({ onMugCreated, onClose }: Props) {
               Home Floor
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {FLOORS.map((floor) => (
+              {FLOORS.filter((floor) => floor.number !== 17).map((floor) => (
                 <button
                   key={floor.number}
                   type="button"

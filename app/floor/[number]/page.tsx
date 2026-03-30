@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getFloorLabel } from "@/lib/floors";
 import MugQRCode from "@/components/MugQRCode";
+import AppDock from "@/components/AppDock";
 
 interface FloorData {
   floor: { number: number; name: string; shortName: string; description: string };
@@ -301,26 +302,7 @@ export default function FloorProfilePage() {
       )}
 
       {/* Bottom dock */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-lg mx-auto px-6 py-2 flex justify-around">
-          <Link href="/app" className="flex flex-col items-center gap-0.5 py-1 px-3 text-white/30 active:scale-95">
-            <span className="text-lg">⚡</span>
-            <span className="text-[10px] font-medium">Activity</span>
-          </Link>
-          <Link href="/app" className="flex flex-col items-center gap-0.5 py-1 px-3 text-white/30 active:scale-95">
-            <span className="text-lg">🏢</span>
-            <span className="text-[10px] font-medium">Tower</span>
-          </Link>
-          <Link href="/app" className="flex flex-col items-center gap-0.5 py-1 px-3 text-white/30 active:scale-95">
-            <span className="text-lg">☕</span>
-            <span className="text-[10px] font-medium">Mugs</span>
-          </Link>
-          <Link href="/app/selfie" className="flex flex-col items-center gap-0.5 py-1 px-3 text-white/30 active:scale-95">
-            <span className="text-lg">📸</span>
-            <span className="text-[10px] font-medium">Selfie</span>
-          </Link>
-        </div>
-      </div>
+      <AppDock />
     </div>
   );
 }

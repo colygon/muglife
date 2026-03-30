@@ -82,6 +82,7 @@ export interface AppEvent {
   mug_name?: string;
   mug_avatar_emoji?: string;
   mug_image_url?: string | null;
+  selfie_image_url?: string | null;
 }
 
 export interface LeaderboardEntry {

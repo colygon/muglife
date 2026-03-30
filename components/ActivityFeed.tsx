@@ -97,8 +97,16 @@ export default function ActivityFeed({ activities }: Props) {
                 <p className="text-xs text-white/30 mt-0.5">
                   by {a.actor} &middot; {timeAgo(a.created_at)}
                 </p>
+                {a.type === "selfie" && a.selfie_image_url && (
+                  <img
+                    src={a.selfie_image_url}
+                    alt={`${a.mug_name || "Mug"} selfie`}
+                    className="mt-2 rounded-lg w-full max-w-[200px] aspect-square object-cover"
+                    loading="lazy"
+                  />
+                )}
               </div>
-              {icon && <span className="text-lg flex-shrink-0">{icon}</span>}
+              {icon && !a.selfie_image_url && <span className="text-lg flex-shrink-0">{icon}</span>}
             </Link>
           );
         }

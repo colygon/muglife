@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 
 const MUGS = [
   {
@@ -24,8 +24,8 @@ const MUGS = [
     borderColor: "border-emerald-500/30",
   },
   {
-    id: "mug47",
-    name: "Mug #47",
+    id: "jake",
+    name: "Jake",
     floor: "Floor 2",
     vibe: "The Nomad",
     quote:
@@ -42,6 +42,15 @@ export default function Home() {
   const [suggestion, setSuggestion] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showStickyLaunch, setShowStickyLaunch] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyLaunch(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -63,6 +72,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#1a1107] text-white font-[family-name:var(--font-geist-sans)]">
+      {/* Sticky Launch App Button */}
+      <a
+        href="/app"
+        className={`fixed top-4 right-4 z-50 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm shadow-lg transition-all duration-300 ${
+          showStickyLaunch
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
+      >
+        Launch App
+      </a>
+
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-16 sm:px-12 sm:pt-32 sm:pb-24">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-900/20 to-transparent pointer-events-none" />
