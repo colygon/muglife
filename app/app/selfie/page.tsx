@@ -50,6 +50,10 @@ function SelfiePageInner() {
           setSelectedFloor(floor);
           const homesHere = data.filter((m: Mug) => m.home_floor === floor);
           if (homesHere[0]) setSelectedMug(homesHere[0]);
+        } else {
+          // Default to Rooftop
+          setSelectedFloor(17);
+          setSelectedMug(data[0] || null);
         }
       })
       .catch(() => {});
@@ -64,15 +68,16 @@ function SelfiePageInner() {
     if (!mugLocked) {
       const homesHere = mugs.filter((m) => m.home_floor === floor);
       const onFloor = mugs.filter((m) => m.current_floor === floor);
-      const candidate = homesHere[0] || onFloor[0] || null;
+      const candidate = homesHere[0] || onFloor[0] || mugs[0] || null;
       setSelectedMug(candidate);
     }
   }
 
-  // Mugs available for the selected floor
-  const floorMugs = selectedFloor !== null
+  // Mugs available for the selected floor (fall back to all mugs if none on this floor)
+  const floorSpecificMugs = selectedFloor !== null
     ? mugs.filter((m) => m.home_floor === selectedFloor || m.current_floor === selectedFloor)
     : [];
+  const floorMugs = floorSpecificMugs.length > 0 ? floorSpecificMugs : mugs;
 
   function unlockMug() {
     setMugLocked(false);
@@ -374,11 +379,13 @@ function SelfiePageInner() {
             {/* Shutter button with selected mug avatar */}
             <div className="relative">
               {selectedMug && (
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
                   {selectedMug.image_url ? (
-                    <img src={selectedMug.image_url} alt={selectedMug.name} className="w-12 h-12 rounded-full object-cover border-2 border-amber-500 shadow-lg shadow-amber-500/30" />
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30">
+                      <img src={selectedMug.image_url} alt={selectedMug.name} className="w-full h-full object-cover" />
+                    </div>
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-xl shadow-lg">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-lg shadow-lg">
                       {selectedMug.avatar_emoji}
                     </div>
                   )}

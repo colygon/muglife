@@ -72,41 +72,46 @@ export default function ActivityFeed({ activities }: Props) {
         if (isAppEvent(a)) {
           // New event format
           const { text, color, icon } = getEventText(a);
+          const hasSelfieImage = a.type === "selfie" && a.selfie_image_url;
           return (
             <Link
               key={`event-${a.id}`}
               href={a.mug_id ? `/mug/${a.mug_id}` : "/app"}
-              className="flex gap-3 items-start p-3 rounded-xl bg-white/5 border border-white/5 hover:border-amber-500/20 transition-colors active:scale-[0.99]"
+              className={`block rounded-xl bg-white/5 border border-white/5 hover:border-amber-500/20 transition-colors active:scale-[0.99] overflow-hidden ${
+                hasSelfieImage ? "" : "p-3"
+              }`}
             >
-              {a.mug_image_url ? (
-                <img
-                  src={a.mug_image_url}
-                  alt={a.mug_name || ""}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-lg flex-shrink-0">
-                  {a.mug_avatar_emoji || "☕"}
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm">
-                  <span className="font-medium text-amber-400">{a.mug_name || "A mug"}</span>{" "}
-                  <span className={color}>{text}</span>
-                </p>
-                <p className="text-xs text-white/30 mt-0.5">
-                  by {a.actor} &middot; {timeAgo(a.created_at)}
-                </p>
-                {a.type === "selfie" && a.selfie_image_url && (
+              <div className={`flex gap-3 items-start ${hasSelfieImage ? "p-3 pb-2" : ""}`}>
+                {a.mug_image_url ? (
                   <img
-                    src={a.selfie_image_url}
-                    alt={`${a.mug_name || "Mug"} selfie`}
-                    className="mt-2 rounded-lg w-full max-w-[200px] aspect-square object-cover"
-                    loading="lazy"
+                    src={a.mug_image_url}
+                    alt={a.mug_name || ""}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                   />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-lg flex-shrink-0">
+                    {a.mug_avatar_emoji || "☕"}
+                  </div>
                 )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm">
+                    <span className="font-medium text-amber-400">{a.mug_name || "A mug"}</span>{" "}
+                    <span className={color}>{text}</span>
+                  </p>
+                  <p className="text-xs text-white/30 mt-0.5">
+                    by {a.actor} &middot; {timeAgo(a.created_at)}
+                  </p>
+                </div>
+                {icon && !hasSelfieImage && <span className="text-lg flex-shrink-0">{icon}</span>}
               </div>
-              {icon && !a.selfie_image_url && <span className="text-lg flex-shrink-0">{icon}</span>}
+              {hasSelfieImage && (
+                <img
+                  src={a.selfie_image_url!}
+                  alt={`${a.mug_name || "Mug"} selfie`}
+                  className="w-full aspect-square object-cover"
+                  loading="lazy"
+                />
+              )}
             </Link>
           );
         }

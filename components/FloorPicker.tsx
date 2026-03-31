@@ -17,16 +17,13 @@ export default function FloorPicker({
   const [selectedFloor, setSelectedFloor] = useState<number | null>(
     currentFloor
   );
-  const [name, setName] = useState(() => {
+  const [name] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("muglife-name") || "";
+      return localStorage.getItem("muglife-name") || "Someone";
     }
-    return "";
+    return "Someone";
   });
   const [submitting, setSubmitting] = useState(false);
-
-  // Show name input alongside floor picker, not as a replacement
-  const needsName = typeof window !== "undefined" && !localStorage.getItem("muglife-name");
 
   async function handleCheckIn() {
     if (!selectedFloor || !name.trim()) return;
@@ -50,7 +47,7 @@ export default function FloorPicker({
 
       {/* Floor grid */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-        {TOWER_FLOORS.map((floor) => (
+        {TOWER_FLOORS.filter((f) => f !== 17).map((floor) => (
           <button
             key={floor}
             onClick={() => setSelectedFloor(floor)}
@@ -71,20 +68,6 @@ export default function FloorPicker({
           </button>
         ))}
       </div>
-
-      {/* Name input — always visible if no saved name */}
-      {needsName && (
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/50 text-base"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && name.trim() && selectedFloor) handleCheckIn();
-          }}
-        />
-      )}
 
       <button
         onClick={handleCheckIn}

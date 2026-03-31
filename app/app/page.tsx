@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getEvents, getRecentActivity, getMugsByCurrentFloor, getAllMugs } from "@/lib/queries";
 import { Metadata } from "next";
 import AppHomeClient from "./AppHomeClient";
@@ -20,10 +21,12 @@ export default async function AppHomePage() {
   const activities = events.length > 0 ? events : await getRecentActivity(500);
 
   return (
-    <AppHomeClient
-      activities={activities}
-      floorMugs={floorMugs}
-      allMugs={allMugs}
-    />
+    <Suspense fallback={<div className="min-h-screen bg-[#1a1107]" />}>
+      <AppHomeClient
+        activities={activities}
+        floorMugs={floorMugs}
+        allMugs={allMugs}
+      />
+    </Suspense>
   );
 }

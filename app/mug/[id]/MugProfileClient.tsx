@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MugProfile } from "@/lib/types";
-import TravelTimeline from "@/components/TravelTimeline";
 import FloorPicker from "@/components/FloorPicker";
-import SelfieGallery from "@/components/SelfieGallery";
 import MugChat from "@/components/MugChat";
-import AppDock from "@/components/AppDock";
+import QRScanner from "@/components/QRScanner";
 import MugQRCode from "@/components/MugQRCode";
 import MugVoiceCall from "@/components/MugVoiceCall";
+import MugActivity from "@/components/MugActivity";
 import { getFloorName } from "@/lib/floors";
 
 interface Props {
@@ -22,6 +21,7 @@ export default function MugProfileClient({ initialProfile }: Props) {
   const [showFloorPicker, setShowFloorPicker] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showRescueConfirm, setShowRescueConfirm] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [checkInMessage, setCheckInMessage] = useState<string | null>(null);
 
   const isHome =
@@ -127,31 +127,14 @@ export default function MugProfileClient({ initialProfile }: Props) {
           </div>
         </div>
 
-        {/* Steam divider */}
-        <div className="flex justify-center gap-1 mb-6 opacity-20">
-          <div className="w-1 h-6 bg-white/40 rounded-full animate-steam-1" />
-          <div className="w-1 h-8 bg-white/40 rounded-full animate-steam-2" />
-          <div className="w-1 h-5 bg-white/40 rounded-full animate-steam-3" />
-        </div>
-
-        {/* Travel History */}
+        {/* Activity */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-amber-200 mb-4">
-            Travel History
-          </h2>
-          <TravelTimeline
+          <MugActivity
             scans={profile.recent_scans}
-            homeFloor={profile.home_floor}
-          />
-        </div>
-
-        {/* Selfie Gallery */}
-        <div className="mb-8">
-          <SelfieGallery
             selfies={profile.selfies}
+            homeFloor={profile.home_floor}
             mugId={profile.id}
             mugName={profile.name}
-            onSelfieAdded={refreshProfile}
           />
         </div>
 
@@ -257,35 +240,90 @@ export default function MugProfileClient({ initialProfile }: Props) {
         )}
       </div>
 
-      {/* Mug Actions — floating above dock */}
-      <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-50 px-4">
-        <div className="max-w-lg mx-auto flex gap-3">
-          <button
-            onClick={() => setShowFloorPicker(true)}
-            className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors active:scale-[0.97] shadow-lg"
-          >
-            Check In
-          </button>
-          <button
-            onClick={() => setShowChat(true)}
-            className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors active:scale-[0.97] shadow-lg backdrop-blur-sm"
-          >
-            Chat
-          </button>
-          {!isHome && profile.current_floor !== null && (
+      {/* QR Scanner */}
+      {showScanner && (
+        <QRScanner
+          onScan={(url) => {
+            setShowScanner(false);
+            try {
+              const parsed = new URL(url);
+              const path = parsed.pathname;
+              const mugMatch = path.match(/\/mug\/(\d+)/);
+              if (mugMatch) { router.push(`/mug/${mugMatch[1]}`); return; }
+              const floorMatch = path.match(/\/floor\/([\d-]+)/);
+              if (floorMatch) { router.push(`/floor/${floorMatch[1]}`); return; }
+              if (parsed.hostname.includes("muglife")) { router.push(path); return; }
+            } catch {}
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
+      {/* Dock with mug actions above */}
+      <div className={`fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)] z-40 ${showFloorPicker || showRescueConfirm ? "hidden" : ""}`}>
+        {/* Mug Actions */}
+        <div className="max-w-lg mx-auto px-6 pt-2 pb-1">
+          <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
             <button
-              onClick={() => setShowRescueConfirm(true)}
-              className="py-2.5 px-4 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium transition-colors active:scale-[0.97] border border-green-500/20 shadow-lg"
-              title="Return home"
+              onClick={() => setShowFloorPicker(true)}
+              className="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors active:scale-[0.97]"
             >
-              🏠
+              Check In
             </button>
-          )}
+            {!isHome && profile.current_floor !== null ? (
+              <button
+                onClick={() => setShowRescueConfirm(true)}
+                className="w-11 h-11 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium transition-colors active:scale-[0.97] border border-green-500/20 flex items-center justify-center"
+                title="Return home"
+              >
+                🏠
+              </button>
+            ) : (
+              <div className="w-11" />
+            )}
+            <button
+              onClick={() => setShowChat(true)}
+              className="py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors active:scale-[0.97]"
+            >
+              Chat
+            </button>
+          </div>
+        </div>
+        {/* Dock nav */}
+        <div className="max-w-lg mx-auto px-6 py-1 flex justify-around items-end border-t border-white/5 mt-1">
+          <a href="/app?tab=feed" className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95">
+            <span className="text-2xl">⚡</span>
+            <span className="text-xs font-medium">Activity</span>
+          </a>
+          <a href="/app?tab=tower" className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95">
+            <span className="text-2xl">🏢</span>
+            <span className="text-xs font-medium">Tower</span>
+          </a>
+          <a href="/app/selfie" className="flex flex-col items-center gap-1 -mt-5 active:scale-95">
+            <div className="w-14 h-14 rounded-full bg-pink-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
+              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+              </svg>
+            </div>
+            <span className="text-xs font-medium text-pink-400">Selfie</span>
+          </a>
+          <a href="/app?tab=mugs" className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95">
+            <span className="text-2xl">☕</span>
+            <span className="text-xs font-medium">Mugs</span>
+          </a>
+          <button
+            onClick={() => setShowScanner(true)}
+            className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M3 17v2a2 2 0 002 2h2M17 21h2a2 2 0 002-2v-2" />
+              <rect x="7" y="7" width="10" height="10" rx="1" strokeLinecap="round" />
+            </svg>
+            <span className="text-xs font-medium">Scan</span>
+          </button>
         </div>
       </div>
-
-      {/* Shared App Dock */}
-      <AppDock />
     </div>
   );
 }
