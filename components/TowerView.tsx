@@ -29,7 +29,7 @@ export default function TowerView({ mugs }: Props) {
   const reversedFloors = [...FLOORS].reverse();
 
   return (
-    <div className="perspective-[800px]">
+    <div>
       <div className="space-y-1">
         {reversedFloors.map((floor) => {
           const floorMugs = floorMap.get(floor.number) || [];
@@ -43,10 +43,6 @@ export default function TowerView({ mugs }: Props) {
                   ? "bg-amber-900/15 border-amber-500/20"
                   : "bg-white/[0.02] border-white/5"
               }`}
-              style={{
-                transform: "rotateX(2deg)",
-                transformStyle: "preserve-3d",
-              }}
             >
               <div className="px-3 py-2.5 min-h-[48px]">
                 {/* Floor header */}

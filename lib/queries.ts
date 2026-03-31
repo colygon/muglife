@@ -134,23 +134,33 @@ export async function logEvent(
 
 export async function getEvents(limit: number = 100): Promise<AppEvent[]> {
   await ensureSchema();
-  const rows = await sql`
-    SELECT e.*, m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url,
-      s.image_url as selfie_image_url
+  // Get non-selfie events from events table
+  const eventRows = await sql`
+    SELECT e.id, e.type, e.mug_id, e.actor, e.detail, e.created_at,
+      m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url,
+      NULL as selfie_image_url
     FROM events e
     LEFT JOIN mugs m ON m.id = e.mug_id
-    LEFT JOIN LATERAL (
-      SELECT image_url FROM selfies
-      WHERE selfies.mug_id = e.mug_id
-        AND selfies.created_at <= e.created_at + interval '60 seconds'
-        AND selfies.created_at >= e.created_at - interval '60 seconds'
-      ORDER BY selfies.created_at DESC
-      LIMIT 1
-    ) s ON e.type = 'selfie'
+    WHERE e.type != 'selfie'
     ORDER BY e.created_at DESC
     LIMIT ${limit}
   `;
-  return rows as AppEvent[];
+  // Get selfies directly from selfies table (source of truth)
+  const selfieRows = await sql`
+    SELECT
+      -s.id as id, 'selfie' as type, s.mug_id, s.author as actor, NULL as detail, s.created_at,
+      m.name as mug_name, m.avatar_emoji as mug_avatar_emoji, m.image_url as mug_image_url,
+      s.image_url as selfie_image_url
+    FROM selfies s
+    LEFT JOIN mugs m ON m.id = s.mug_id
+    ORDER BY s.created_at DESC
+    LIMIT ${limit}
+  `;
+  // Merge and sort by date
+  const all = [...eventRows, ...selfieRows]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, limit);
+  return all as AppEvent[];
 }
 
 export async function saveSelfie(

@@ -3,13 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ActivityEntry, AppEvent, MugOnFloor, Mug } from "@/lib/types";
 import ActivityFeed from "@/components/ActivityFeed";
-import TowerView from "@/components/TowerView";
 import MugDirectory from "@/components/MugDirectory";
 import QRScanner from "@/components/QRScanner";
 
-type Tab = "feed" | "tower" | "mugs";
+const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
+
+type Tab = "feed" | "map" | "mugs";
 
 interface Props {
   activities: (AppEvent | ActivityEntry)[];
@@ -62,7 +64,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
 
   const tabsBefore: { id: Tab; label: string; icon: string }[] = [
     { id: "feed", label: "Activity", icon: "⚡" },
-    { id: "tower", label: "Tower", icon: "🏢" },
+    { id: "map", label: "Map", icon: "📍" },
   ];
   const tabsAfter: { id: Tab; label: string; icon: string }[] = [
     { id: "mugs", label: "Mugs", icon: "☕" },
@@ -70,24 +72,29 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
 
   return (
     <div className="min-h-screen bg-[#1a1107] text-white font-[family-name:var(--font-geist-sans)]">
-      {/* Header */}
-      <div className="sticky top-0 z-30 bg-[#1a1107]/95 backdrop-blur-sm border-b border-white/5">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-amber-400">
-            MugLife
-          </Link>
-          <span className="text-xs text-white/30 bg-white/5 px-2 py-1 rounded-full">
-            {allMugs.length} mugs
-          </span>
+      {/* Header — hidden on map tab */}
+      {activeTab !== "map" && (
+        <div className="sticky top-0 z-30 bg-[#1a1107]/95 backdrop-blur-sm border-b border-white/5">
+          <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+            <Link href="/" className="text-xl font-bold text-amber-400">
+              MugLife
+            </Link>
+            <span className="text-xs text-white/30 bg-white/5 px-2 py-1 rounded-full">
+              {allMugs.length} mugs
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 py-4 pb-24">
-        {activeTab === "feed" && <ActivityFeed activities={activities} />}
-        {activeTab === "tower" && <TowerView mugs={floorMugs} />}
-        {activeTab === "mugs" && <MugDirectory mugs={allMugs} onMugCreated={refresh} />}
-      </div>
+      {activeTab === "map" ? (
+        <MapView mugs={floorMugs} />
+      ) : (
+        <div className="max-w-lg mx-auto px-4 py-4 pb-24">
+          {activeTab === "feed" && <ActivityFeed activities={activities} />}
+          {activeTab === "mugs" && <MugDirectory mugs={allMugs} onMugCreated={refresh} />}
+        </div>
+      )}
 
       {/* QR Scanner */}
       {showScanner && (
@@ -124,7 +131,7 @@ export default function AppHomeClient({ activities: initialActivities, floorMugs
       )}
 
       {/* Bottom Dock */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#1a1107]/95 backdrop-blur-sm border-t border-white/10 pb-[env(safe-area-inset-bottom)] z-40">
         <div className="max-w-lg mx-auto px-6 py-2 flex justify-around items-end">
           {tabsBefore.map((tab) => (
             <button

@@ -50,11 +50,11 @@ export default function AppDock() {
             <span className="text-xs font-medium">Activity</span>
           </Link>
           <Link
-            href="/app?tab=tower"
+            href="/app?tab=map"
             className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95"
           >
-            <span className="text-2xl">🏢</span>
-            <span className="text-xs font-medium">Tower</span>
+            <span className="text-2xl">📍</span>
+            <span className="text-xs font-medium">Map</span>
           </Link>
 
           {/* Selfie — center prominent button */}

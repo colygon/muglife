@@ -379,7 +379,7 @@ function SelfiePageInner() {
             {/* Shutter button with selected mug avatar */}
             <div className="relative">
               {selectedMug && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
                   {selectedMug.image_url ? (
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30">
                       <img src={selectedMug.image_url} alt={selectedMug.name} className="w-full h-full object-cover" />

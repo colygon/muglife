@@ -295,9 +295,9 @@ export default function MugProfileClient({ initialProfile }: Props) {
             <span className="text-2xl">⚡</span>
             <span className="text-xs font-medium">Activity</span>
           </a>
-          <a href="/app?tab=tower" className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95">
-            <span className="text-2xl">🏢</span>
-            <span className="text-xs font-medium">Tower</span>
+          <a href="/app?tab=map" className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-amber-400 active:scale-95">
+            <span className="text-2xl">📍</span>
+            <span className="text-xs font-medium">Map</span>
           </a>
           <a href="/app/selfie" className="flex flex-col items-center gap-1 -mt-5 active:scale-95">
             <div className="w-14 h-14 rounded-full bg-pink-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
